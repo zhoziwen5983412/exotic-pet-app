@@ -1,0 +1,233 @@
+{
+  "language": "zh",
+  "theme": "theme-light",
+  "pets": [
+    {
+      "id": "pet_mochi",
+      "name": "Mochi",
+      "species": "睫角守宫 (Crested Gecko)",
+      "speciesKey": "crested_gecko",
+      "gender": "♀",
+      "age": "1.5年",
+      "ageEn": "1.5 yrs",
+      "gene": "黄莉莉皮皮 (Yellow Lily White)",
+      "image": "assets/pet_gecko.png",
+      "companionDays": 600,
+      "location": "日本东京 (Tokyo, Japan)",
+      "locationKey": "tokyo",
+      "coordinates": "35.6762° N, 139.6503° E",
+      "followersCount": 4250,
+      "ownerName": "Kenji_T",
+      "personality": "温顺且超级贪吃，喜欢在我手心睡觉。",
+      "personalityEn": "Gentle and very greedy, loves sleeping in my palm.",
+      "story": "Mochi是我在东京宠物展第一眼相中的小家伙。从刚出生只有几克重，到现在能稳稳吸附在窗台，它见证了我每一个熬夜做设计的夜晚。",
+      "storyEn": "Mochi is the little guy I picked at the Tokyo Pet Show. From just a few grams to now firmly holding on the window sill, she witnessed all my late-night design work.",
+      "timeline": [
+        {
+          "id": "t1",
+          "day": "Day 1",
+          "title": "初次见面",
+          "titleEn": "First Meet",
+          "desc": "坐着JR线把它带回了家，只有3克重，小小的像颗花生。",
+          "descEn": "Brought her home via JR line. Only 3g, tiny like a peanut."
+        },
+        {
+          "id": "t2",
+          "day": "Day 45",
+          "title": "第一次主动爬手",
+          "titleEn": "First Hand-Tame",
+          "desc": "在勺喂果泥时，它的小爪子搭在了我的拇指上，冰冰凉凉的。",
+          "descEn": "While spoon-feeding diet, her little claw stepped on my thumb. Cool and soft."
+        },
+        {
+          "id": "t3",
+          "day": "Day 365",
+          "title": "一岁生日",
+          "titleEn": "1st Birthday",
+          "desc": "做了一个水果果泥小蛋糕，一口气全吃光了！",
+          "descEn": "Made a tiny fruit diet cake, she ate the whole thing in one go!"
+        },
+        {
+          "id": "t_node_1781197533579",
+          "day": "Day 600",
+          "title": "测试新增轨迹",
+          "titleEn": "Test timeline addition",
+          "desc": "系统测试用例内容，验证接口持久化。",
+          "descEn": "System test case details verifying api persistence."
+        }
+      ]
+    },
+    {
+      "id": "pet_zuzu",
+      "name": "Zuzu",
+      "species": "高冠变色龙 (Veiled Chameleon)",
+      "speciesKey": "veiled_chameleon",
+      "gender": "♂",
+      "age": "9个月",
+      "ageEn": "9 mos",
+      "gene": "高黄血统高冠 (High-Yellow Line)",
+      "image": "assets/pet_chameleon.png",
+      "companionDays": 210,
+      "location": "巴西圣保罗 (Sao Paulo, Brazil)",
+      "locationKey": "saopaulo",
+      "coordinates": "23.5505° S, 46.6333° W",
+      "followersCount": 1890,
+      "ownerName": "Carlos_S",
+      "personality": "傲娇且警戒心强，但晒太阳时会变成明艳的黄色。",
+      "personalityEn": "Proud and alert, but turns vibrant yellow when sunbathing.",
+      "story": "Zuzu是在圣保罗的爬友聚会上交换来的。它在我的阳台植物角拥有一个专属的高空森林，看着它缓慢移动就像在欣赏慢动作电影。",
+      "storyEn": "Traded Zuzu at a Sao Paulo reptile meet. He has his own high forest in my balcony garden. Watching him move is like enjoying a slow-motion movie.",
+      "timeline": [
+        {
+          "id": "t4",
+          "day": "Day 1",
+          "title": "定居森林缸",
+          "titleEn": "New Forest Home",
+          "desc": "住进了定制的1.2米网箱，一直盯着滴水器看。",
+          "descEn": "Moved into a custom 1.2m mesh enclosure, kept staring at the dripper."
+        },
+        {
+          "id": "t5",
+          "day": "Day 90",
+          "title": "蜕皮警报",
+          "titleEn": "Shedding Warning",
+          "desc": "身上披了一层白纱，通过加湿和多晒太阳顺利蜕下。",
+          "descEn": "Wrapped in white shed like a veil. Shed successfully after misting & sunbathing."
+        }
+      ]
+    }
+  ],
+  "posts": [
+    {
+      "petId": "pet_mochi",
+      "username": "TestKeeper",
+      "avatar": "/uploads/img_1781198072444_6625.png",
+      "location": "中国北京 (Beijing, China)",
+      "coordinates": "39.9042° N, 116.4074° E",
+      "time": "刚刚",
+      "timeEn": "Just now",
+      "tag": "测试分类",
+      "tagEn": "Test Tag",
+      "content": "测试图片物理化存储",
+      "contentEn": "Testing physical image storage",
+      "image": "/uploads/img_1781198072444_9423.png",
+      "id": "p_1781198072443",
+      "curiousCount": 0,
+      "sharedCount": 0,
+      "commentCount": 0,
+      "saveCount": 0,
+      "curious": false,
+      "shared": false,
+      "saved": false,
+      "commentsList": []
+    },
+    {
+      "id": "p1",
+      "petId": "pet_mochi",
+      "username": "Kenji_T",
+      "avatar": "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=100&q=80",
+      "location": "日本东京 (Tokyo, Japan)",
+      "coordinates": "35.6762° N, 139.6503° E",
+      "time": "2小时前",
+      "timeEn": "2 hrs ago",
+      "tag": "成长日记",
+      "tagEn": "Growth Log",
+      "content": "Mochi 今天第一次主动爬上我的手！勺喂了它最喜欢的无花果味果泥，舔得干干净净。手心上那种凉丝丝、软绵绵的小爪子触感，简直太治愈了！",
+      "contentEn": "Mochi climbed onto my hand voluntarily for the first time today! Spoon-fed her favorite fig diet, and she licked it clean. The cool, soft touch of her claws on my palm is pure therapy!",
+      "image": "assets/pet_gecko.png",
+      "layout": "single-photo",
+      "curiousCount": 248,
+      "sharedCount": 42,
+      "commentCount": 36,
+      "saveCount": 89,
+      "curious": false,
+      "shared": false,
+      "saved": false,
+      "commentsList": [
+        {
+          "name": "Anna (Germany)",
+          "text": "Congrats! My crested gecko still runs away when I open the enclosure. Any tips?"
+        },
+        {
+          "name": "陈叔爬爬 (China)",
+          "text": "好品相的莉莉白！喂食多一些耐心，经常把手放箱子里脱敏就会好很多。"
+        }
+      ]
+    },
+    {
+      "id": "p2",
+      "petId": "pet_zuzu",
+      "username": "Carlos_S",
+      "avatar": "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=100&q=80",
+      "location": "巴西圣保罗 (Sao Paulo, Brazil)",
+      "coordinates": "23.5505° S, 46.6333° W",
+      "time": "5小时前",
+      "timeEn": "5 hrs ago",
+      "tag": "生活瞬间",
+      "tagEn": "Life Moment",
+      "content": "享受热带阳光的 Zuzu。今天圣保罗是个大晴天，带它在阳台灌木丛上晒了20分钟太阳，体色瞬间从暗绿转化成了极其明亮斑斓的黄色！真是一只行走的自然调色盘。",
+      "contentEn": "Zuzu enjoying tropical sun. Sunny day in Sao Paulo today. Let him bask in the balcony bushes for 20 mins, and his skin color shifted from dark green to bright yellow instantly! A walking natural palette.",
+      "image": "assets/pet_chameleon.png",
+      "layout": "growth-log",
+      "curiousCount": 189,
+      "sharedCount": 18,
+      "commentCount": 12,
+      "saveCount": 42,
+      "curious": false,
+      "shared": false,
+      "saved": false,
+      "commentsList": [
+        {
+          "name": "Lucas (USA)",
+          "text": "Beautiful setup Carlos! Sunlight is the best UV for chameleons."
+        }
+      ]
+    },
+    {
+      "id": "p3",
+      "petId": null,
+      "username": "Sophia_Melb",
+      "avatar": "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=100&q=80",
+      "location": "澳大利亚悉尼 (Sydney, Australia)",
+      "coordinates": "33.8688° S, 151.2093° E",
+      "time": "1天前",
+      "timeEn": "1 day ago",
+      "tag": "日常分享",
+      "tagEn": "Daily Story",
+      "content": "【成长相册】这是我们共同生活的第100天。从小拇指大的小家伙长到如今手臂这么长，每天看它探索垫木、慢悠悠地爬行，这种安静的陪伴感无可替代。有人知道悉尼哪里有靠谱的异宠体检医院吗？",
+      "contentEn": "[100 Days Together] From finger-sized to arm-length. Watching it slowly crawl and explore branches is irreplaceable calm. Anyone knows a reliable exotic vet in Sydney for checkups?",
+      "image": "assets/pet_snake.png",
+      "layout": "single-photo",
+      "curiousCount": 96,
+      "sharedCount": 24,
+      "commentCount": 19,
+      "saveCount": 31,
+      "curious": false,
+      "shared": false,
+      "saved": false,
+      "commentsList": [
+        {
+          "name": "AussieKeeper",
+          "text": "Try the Exotic Vet clinic in Waterloo, they specialize in reptiles and birds!"
+        }
+      ]
+    }
+  ],
+  "hotTopics": [
+    {
+      "id": "ht1",
+      "title": "异宠最奇怪的睡姿大赏",
+      "titleEn": "Show off your exotic pet's weirdest sleeping positions"
+    },
+    {
+      "id": "ht2",
+      "title": "你的生态缸里养了什么植物？",
+      "titleEn": "What plants are you growing in your bioactive vivarium?"
+    },
+    {
+      "id": "ht3",
+      "title": "南北半球冬季控温保姆级讨论",
+      "titleEn": "Global heating & temperature control tips in winter"
+    }
+  ]
+}

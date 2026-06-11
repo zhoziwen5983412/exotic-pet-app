@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Petverse - 异宠星球全球生活社区</title>
+    <!-- Stylesheet -->
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body class="theme-dark">
+
+    <!-- Hidden File Inputs for Local Image Upload -->
+    <input type="file" id="post-image-file" accept="image/*" style="display:none;" onchange="handlePostImageUpload(event)">
+    <input type="file" id="pet-image-file" accept="image/*" style="display:none;" onchange="handlePetImageUpload(event)">
+    <input type="file" id="user-avatar-file" accept="image/*" style="display:none;" onchange="handleUserAvatarUpload(event)">
+
+    <div class="app-wrapper">
+        
+        <!-- ==========================================
+             LEFT: SMARTPHONE SIMULATOR
+             ========================================== -->
+        <div class="phone-container">
+            <div class="phone-notch"></div>
+            
+            <div class="phone-screen">
+                
+                <!-- Status Bar -->
+                <div class="status-bar">
+                    <span class="status-time">16:25</span>
+                    <div class="status-bar-icons">
+                        <span>📶</span>
+                        <span>5G</span>
+                        <span>🔋 98%</span>
+                    </div>
+                </div>
+
+                <!-- Bubble Pop Overlay for Touch-it -->
+                <div class="bubble-alert-box" id="touch-bubble-alert">
+                    👋 你摸了摸 Mochi 的小脑袋！
+                </div>
+
+                <!-- Timeline Log Modal Popup Overlay -->
+                <div class="timeline-modal-backdrop" id="timeline-modal-backdrop" onclick="closeTimelineModal()"></div>
+                <div class="timeline-modal" id="timeline-modal">
+                    <div class="timeline-modal-header">
+                        <span class="timeline-modal-title" data-t="addLogTitle">添加成长日志 (Add Growth Log)</span>
+                        <span style="cursor: pointer; font-size: 12px; font-weight: bold; color: var(--text-secondary);" onclick="closeTimelineModal()">✕</span>
+                    </div>
+                    <div class="timeline-modal-body">
+                        <div class="calc-input-group">
+                            <span class="calc-input-label">相伴天数 (Companion Day)</span>
+                            <input type="text" id="log-day-input" placeholder="例如: Day 100 (e.g. Day 100)">
+                        </div>
+                        <div class="calc-input-group">
+                            <span class="calc-input-label">大事记标题 (Title)</span>
+                            <input type="text" id="log-title-input" placeholder="例如: 第一次主动进食 (e.g. First Feed)">
+                        </div>
+                        <div class="calc-input-group">
+                            <span class="calc-input-label">日志内容描述 (Description)</span>
+                            <textarea id="log-desc-input" placeholder="写下发生的事情... (Write down the story...)"></textarea>
+                        </div>
+                    </div>
+                    <div class="timeline-modal-footer">
+                        <button class="join-btn" onclick="closeTimelineModal()" style="background:transparent; border:1px solid var(--border-color); color:var(--text-secondary); padding: 5px 12px; border-radius:12px; font-size:10px;">取消</button>
+                        <button class="join-btn" onclick="submitNewTimelineLog()" style="padding: 5px 12px; border-radius:12px; font-size:10px;">提交</button>
+                    </div>
+                </div>
+
+                <!-- Comments slide-up drawer overlay -->
+                <div class="comment-drawer-backdrop" id="comment-backdrop" onclick="closeCommentDrawer()"></div>
+                <div class="comment-drawer" id="comment-drawer">
+                    <div class="comment-drawer-header">
+                        <span id="comment-drawer-title" style="font-weight: 700; font-size: 12px; font-family: var(--font-logo);">评论 (Comments)</span>
+                        <span style="cursor: pointer; font-size: 12px; font-weight: bold; color: var(--text-secondary);" onclick="closeCommentDrawer()">✕</span>
+                    </div>
+                    <div class="comment-drawer-list" id="comment-drawer-list-container">
+                        <!-- Loaded by JS -->
+                    </div>
+                    <div class="comment-drawer-input-row">
+                        <input type="text" id="new-comment-input-box" placeholder="说点什么... (Add a comment...)" onkeydown="if(event.key==='Enter') submitNewComment()">
+                        <button class="join-btn" onclick="submitNewComment()" style="padding: 5px 10px; font-size: 10px; border-radius:12px; flex-shrink:0;">发送</button>
+                    </div>
+                </div>
+
+                <!-- App Header -->
+                <header class="app-header">
+                    <!-- Top Row: Scan, Search bar, Bell icon -->
+                    <div class="header-top" style="gap: 10px;">
+                        <div class="action-icon-btn scan-outline-btn" onclick="alert('扫一扫功能开发中... / Scan is coming soon!')">
+                            <span style="font-size: 14px; font-weight: bold; border: 1.5px solid var(--text-primary); border-radius: 4px; padding: 1px 4px; letter-spacing: 0;">📸</span>
+                        </div>
+                        
+                        <div class="search-box-magazine" style="flex: 1; display: flex; align-items: center; gap: 6px; background-color: var(--tag-bg); padding: 4px 12px; border-radius: 18px; border: 1px solid transparent;">
+                            <span>🔍</span>
+                            <input type="text" id="search-input-box" data-t-placeholder="placeholderSearch" placeholder="搜品种、圈子、帖子、用户..." style="width: 100%; background: transparent; border: none; outline: none; font-size: 11px; color: var(--text-primary);" oninput="handleSearchInput(event)">
+                            <span id="search-clear-btn" style="cursor: pointer; font-size: 10px; display: none; color: var(--text-secondary);" onclick="clearSearchInput()">✕</span>
+                        </div>
+
+                        <div class="notification-bell" onclick="alert('消息通知暂无新消息 / No notifications')">
+                            <span>🔔</span>
+                            <div class="bell-badge"></div>
+                        </div>
+                    </div>
+
+                    <!-- Second Row: Tab Headers (关注 | 世界 | 热榜 | 养护) -->
+                    <div class="tab-headers-magazine" style="display: flex; gap: 8px; justify-content: space-between; margin-top: 10px; overflow-x: auto; scrollbar-width: none;">
+                        <!-- Loaded by JS dynamically -->
+                    </div>
+
+                    <!-- Geolocation filter bar (only active in World/Follow feeds) -->
+                    <div class="discovery-filter-row" style="margin-top: 8px; display: none;">
+                        <!-- Loaded by JS -->
+                    </div>
+                </header>
+
+                <!-- Scrollable Body -->
+                <main class="screen-body" id="screen-body-container">
+                    
+                    <!-- Page 1: Home Mixed Feed -->
+                    <div class="app-page active" id="page-home">
+                        <!-- JS Loaded -->
+                    </div>
+
+                    <!-- Page 2: Circles Directory -->
+                    <div class="app-page" id="page-circles">
+                        <!-- JS Loaded -->
+                    </div>
+
+                    <!-- Page 3: Record Creator (+) -->
+                    <div class="app-page" id="page-record">
+                        <!-- JS Loaded -->
+                    </div>
+
+                    <!-- Page 4: Message Inbox -->
+                    <div class="app-page" id="page-messages">
+                        <!-- JS Loaded -->
+                    </div>
+
+                    <!-- Page 5: Me / User Profile -->
+                    <div class="app-page" id="page-me">
+                        <!-- JS Loaded -->
+                    </div>
+
+                    <!-- Page 6: Pet Profile (Timeline & Stories) -->
+                    <div class="app-page" id="page-pet-profile">
+                        <!-- JS Loaded -->
+                    </div>
+
+                    <!-- Page 7: Post Detail -->
+                    <div class="app-page" id="page-post-detail">
+                        <!-- JS Loaded -->
+                    </div>
+
+                </main>
+
+                <!-- Bottom Navigation Bar (Home, Circles, +, Messages, Me) -->
+                <nav class="bottom-nav">
+                    <div class="nav-item active" data-tab="home">
+                        <span class="nav-icon">🏠</span>
+                        <span data-t="tabHome">首页</span>
+                    </div>
+                    <div class="nav-item" data-tab="circles">
+                        <span class="nav-icon">🌐</span>
+                        <span data-t="tabCircles">圈子</span>
+                    </div>
+                    <div class="nav-item" data-tab="record">
+                        <span class="nav-icon" style="font-size: 20px; font-weight: bold; margin-bottom: 0;">+</span>
+                        <span data-t="recordTab">+</span>
+                    </div>
+                    <div class="nav-item" data-tab="messages">
+                        <span class="nav-icon">📩</span>
+                        <span data-t="messagesTab">消息</span>
+                    </div>
+                    <div class="nav-item" data-tab="me">
+                        <span class="nav-icon">👤</span>
+                        <span data-t="meTab">我</span>
+                    </div>
+                </nav>
+
+            </div>
+        </div>
+
+        <!-- ==========================================
+             RIGHT: CONTROL PANEL & DESIGN STUDY
+             ========================================== -->
+        <div class="control-panel">
+            <h1 class="control-title">PETVERSE / 异宠故事</h1>
+            <p class="control-subtitle">
+                记录人与异宠共同生活的全球自然杂志社区
+            </p>
+
+            <!-- Preferences Settings -->
+            <div class="control-group">
+                <span class="control-label">系统偏好 / Preferences</span>
+                <div class="btn-row">
+                    <button class="ctrl-btn ctrl-lang-btn active" id="ctrl-lang-zh" onclick="changeLanguage('zh')">🇨🇳 简体中文</button>
+                    <button class="ctrl-btn ctrl-lang-btn" id="ctrl-lang-en" onclick="changeLanguage('en')">🇺🇸 English</button>
+                    
+                    <button class="ctrl-btn ctrl-theme-btn active" id="ctrl-theme-theme-dark" onclick="changeTheme('theme-dark')">🌙 深岩灰暗色</button>
+                    <button class="ctrl-btn ctrl-theme-btn" id="ctrl-theme-theme-light" onclick="changeTheme('theme-light')">☀️ 暖白陶土日间</button>
+                </div>
+            </div>
+
+            <!-- "World right now" Map simulation entry -->
+            <div class="control-group">
+                <span class="control-label" data-t="mapTitle">此刻的世界 (World Right Now Map)</span>
+                <div class="map-discovery-box">
+                    <div class="map-viewport">
+                        <!-- Markers simulation -->
+                        <div class="map-marker" style="top: 35%; left: 75%;" onclick="triggerMockMapDiscovery('tokyo')" title="Tokyo, Japan">
+                            <div class="map-marker-pin"></div>
+                            <div class="map-marker-label">日本: Mochi 刚刚</div>
+                        </div>
+                        <div class="map-marker" style="top: 70%; left: 35%;" onclick="triggerMockMapDiscovery('saopaulo')" title="Sao Paulo, Brazil">
+                            <div class="map-marker-pin"></div>
+                            <div class="map-marker-label">巴西: Zuzu 5分钟前</div>
+                        </div>
+                    </div>
+                    <p style="font-size: 10px; color: var(--text-secondary); margin-top: 8px; text-align: center;" data-t="mapSub">
+                        点击地图上的定位签，筛选该地区的动态内容
+                    </p>
+                </div>
+            </div>
+
+            <!-- Staggered topic suggestions slider -->
+            <div class="control-group">
+                <span class="control-label" data-t="topicTitle">本周全球讨论话题</span>
+                <div class="topic-slide-wrap">
+                    <div class="topic-slide-card" onclick="alert('本周话题：#异宠最奇怪的睡姿')">
+                        <span class="topic-slide-tag">WEEKLY TOPIC</span>
+                        <div class="topic-slide-title">#异宠最奇怪的睡姿 (Weirdest sleep poses)</div>
+                    </div>
+                    <div class="topic-slide-card" onclick="alert('本周话题：#你的生态缸里养了什么植物')">
+                        <span class="topic-slide-tag">TRENDING</span>
+                        <div class="topic-slide-title">#你的生态缸里养了什么植物 (Vivarium plants)</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Design highlights -->
+            <div class="control-group" style="margin-bottom: 0;">
+                <span class="control-label">重构设计理念说明 / Design Philosophy</span>
+                <div class="market-highlight-card" style="margin-top:0; font-size:11px;">
+                    <strong>📖 数字自然杂志感：</strong> 取消大横幅与快捷功能块，首屏聚焦于高品质的用户摄影图与异形“生态观察窗”故事胶囊。配色方案在浅色下为复古陶土暖白，深色下为低调深岩灰，排版留白大方。<br><br>
+                    <strong>🦖 宠物生命时间轴：</strong> 每一只异宠都配有<b>独立成长主页</b>而非冰冷的饲养参数表。支持“摸摸它（带有弹窗动画）”、“同款经历”和“单独关注这只异宠”，凸显陪伴温度。<br><br>
+                    <strong>🌐 全球无界社交：</strong> 动态底部带有经纬度与地点签，点击地图可检索不同国家的动态，支持跨语言评论翻译。
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Script File -->
+    <script src="app.js"></script>
+</body>
+</html>
