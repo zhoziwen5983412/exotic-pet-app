@@ -6,8 +6,8 @@ const API_URL = 'http://localhost:3000/api';
 let isBackendConnected = false;
 
 const state = {
-    language: 'zh', // 'zh' or 'en'
-    theme: 'theme-dark', // 'theme-dark' or 'theme-light'
+    language: localStorage.getItem('petverse_language') || 'zh', // 'zh' or 'en'
+    theme: localStorage.getItem('petverse_theme') || 'theme-dark', // 'theme-dark' or 'theme-light'
     activeTab: 'home', // 'home' | 'circles' | 'record' | 'messages' | 'me'
     activeHomeHeaderTab: 'world', // 'follow' | 'world' | 'rank' | 'guide'
     activePetProfileId: null, // to show specific pet profile
@@ -17,6 +17,12 @@ const state = {
     mapExpanded: false, // map expansion state
     activeCommentPostId: null, // comment drawer active post ID
     radarActive: false, // radar state active
+    circlesSubTab: 'circles', // 'circles' | 'care'
+    activeCareDetailKey: null, // to show specific care details
+    isLoggedIn: localStorage.getItem('petverse_is_logged_in') === 'true',
+    blockedUsers: localStorage.getItem('petverse_blocked_users') ? JSON.parse(localStorage.getItem('petverse_blocked_users')) : [],
+    loginCallback: null,
+    tempLoginAvatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&w=150&q=80',
     userProfile: {
         username: '旅行极客-Me',
         avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&w=150&q=80',
@@ -24,7 +30,8 @@ const state = {
     },
     pets: [],
     posts: [],
-    hotTopics: []
+    hotTopics: [],
+    questions: []
 };
 
 // Fallback datasets (In case backend server.js is offline)
@@ -98,7 +105,7 @@ const translations = {
         appName: 'Petverse',
         greet: '记录共同生活',
         tabHome: '首页',
-        tabCircles: '圈子',
+        tabCircles: '百科',
         recordTab: '+',
         messagesTab: '消息',
         meTab: '我',
@@ -114,7 +121,7 @@ const translations = {
         btnTouch: '摸摸它',
         followedPet: '已关注此宠',
         followPet: '关注宠物',
-        growthTimeline: '它的共同生活成长日记',
+        growthTimeline: '成长记录时间轴',
         petStoryTitle: '关于我们的故事',
         companionDays: '相伴天数',
         followers: '粉丝',
@@ -132,27 +139,49 @@ const translations = {
         prompt2: '这是你们共同生活的第几天？',
         prompt3: '当时发生了什么？想问其他宠主什么？',
         createTitle: '记录新鲜事',
-        placeholderPost: '讲述你和宠物今天的故事... (自动翻译为全球多语言)',
+        placeholderPost: '讲述你和宠物今天的故事...',
         choosePet: '选择主角异宠',
         writeTitle: '写下生活瞬间...',
         detailTitle: '动态详情',
         btnTranslate: '🌍 翻译评论',
         back: '返回首页',
-        mapTitle: '此刻的世界 (World Right Now)',
+        mapTitle: '此刻的世界',
         mapSub: '点击定位签，查看该地区异宠生活',
-        circlesTitle: '异宠圈子百科',
+        circlesTitle: '异宠百科圈子',
         tabFollow: '关注',
         tabWorld: '世界',
         tabRank: '热榜',
         tabGuide: '养护',
         rankHeader: '今日异宠热榜',
-        guideHeader: '精品异宠养护知识'
+        guideHeader: '精品异宠养护知识',
+        addLogTitle: '添加成长日志',
+        companionDayLabel: '相伴天数',
+        logTitleLabel: '大事记标题',
+        logDescLabel: '日志内容描述',
+        cancelBtn: '取消',
+        submitBtn: '提交',
+        sendBtn: '发送',
+        placeholderComment: '说点什么...',
+        loginTitle: '加入 Petverse 社区',
+        loginUsernameLabel: '个性昵称',
+        loginDescLabel: '个人简介',
+        loginSubmitBtn: '立即加入',
+        guidelinesTitle: 'Petverse 社区公约',
+        guidelinesHeading1: '1. 尊重与善意',
+        guidelinesDesc1: '在交流异宠饲养心得时，请保持礼貌与客观。严禁侮辱、谩骂、人身攻击或恶意引战。',
+        guidelinesHeading2: '2. 合法与负责任饲养',
+        guidelinesDesc2: '倡导科学与合规饲养。严禁宣传、展示、交易任何法律法规禁止的野生动物或濒危保护动物，杜绝野捕与非法倒卖。',
+        guidelinesHeading3: '3. 严禁放生外来物种',
+        guidelinesDesc3: '外来异宠在野外可能会破坏生态平衡，甚至引发安全隐患。严禁一切不负责任的弃养、放生或散养行为。',
+        guidelinesHeading4: '4. 真实与原创',
+        guidelinesDesc4: '鼓励分享真实的日常瞬间和成长记录，禁止发布虚假诱导信息或剽窃他人摄影作品。',
+        guidelinesAgreeBtn: '我已阅读并同意'
     },
     en: {
         appName: 'Petverse',
         greet: 'Exotic Journal',
         tabHome: 'Home',
-        tabCircles: 'Circles',
+        tabCircles: 'Encyclopedia',
         recordTab: '+',
         messagesTab: 'Inbox',
         meTab: 'Me',
@@ -168,7 +197,7 @@ const translations = {
         btnTouch: 'Touch It',
         followedPet: 'Following Pet',
         followPet: 'Follow Pet',
-        growthTimeline: 'Life & Growth Timeline',
+        growTimeline: 'Life & Growth Timeline',
         petStoryTitle: 'Our Story Together',
         companionDays: 'Days Together',
         followers: 'Followers',
@@ -186,7 +215,7 @@ const translations = {
         prompt2: 'What day of your life together is this?',
         prompt3: 'What happened? Want to ask other keepers?',
         createTitle: 'Create Record',
-        placeholderPost: 'Write down your story today... (Will be translated globally)',
+        placeholderPost: 'Write down your story today...',
         choosePet: 'Select Pet Subject',
         writeTitle: 'Record a Moment...',
         detailTitle: 'Post Detail',
@@ -200,7 +229,29 @@ const translations = {
         tabRank: 'Hot',
         tabGuide: 'Care',
         rankHeader: 'Today\'s Hot Ranks',
-        guideHeader: 'Exotic Pet Care Guides'
+        guideHeader: 'Exotic Pet Care Guides',
+        addLogTitle: 'Add Growth Log',
+        companionDayLabel: 'Days Together',
+        logTitleLabel: 'Milestone Title',
+        logDescLabel: 'Description',
+        cancelBtn: 'Cancel',
+        submitBtn: 'Submit',
+        sendBtn: 'Send',
+        placeholderComment: 'Add a comment...',
+        loginTitle: 'Join Petverse Community',
+        loginUsernameLabel: 'Nickname',
+        loginDescLabel: 'Bio / Description',
+        loginSubmitBtn: 'Join Now',
+        guidelinesTitle: 'Petverse Community Guidelines',
+        guidelinesHeading1: '1. Respect & Kindness',
+        guidelinesDesc1: 'Please remain polite and objective when discussing care tips. Insults, harassment, or personal attacks are strictly prohibited.',
+        guidelinesHeading2: '2. Legal & Responsible Husbandry',
+        guidelinesDesc2: 'We advocate scientific and legal husbandry. It is strictly prohibited to promote, showcase, or trade any endangered/protected animals. Say NO to wild-catching.',
+        guidelinesHeading3: '3. NO Release of Invasive Species',
+        guidelinesDesc3: 'Exotic pets released into the wild can destroy ecological balances. Irresponsible abandonment, release, or free-roaming is strictly forbidden.',
+        guidelinesHeading4: '4. Truthfulness & Originality',
+        guidelinesDesc4: 'We encourage sharing genuine records. Do not publish deceptive content or plagiarize others photography work.',
+        guidelinesAgreeBtn: 'I Agree'
     }
 };
 
@@ -404,7 +455,7 @@ function renderPageHome() {
 
     if (state.activeHomeHeaderTab === 'world' || state.activeHomeHeaderTab === 'follow') {
         // Xiaohongshu-style two-column waterfall mixed grid
-        let displayPosts = [...state.posts];
+        let displayPosts = state.posts.filter(p => !state.blockedUsers.includes(p.username));
         
         if (state.activeHomeHeaderTab === 'follow') {
             displayPosts = displayPosts.filter(p => p.username === 'Kenji_T');
@@ -511,7 +562,7 @@ function renderPageHome() {
             <div class="story-capsule" onclick="showPetProfile('${pet.id}')">
                 <div class="observation-window">
                     <div class="window-inner">
-                        <img src="${pet.image}" alt="capsule pic">
+                        <img src="${pet.image}" alt="capsule pic" loading="lazy">
                     </div>
                 </div>
                 <span class="story-title">${pet.name}</span>
@@ -536,19 +587,19 @@ function renderPageHome() {
                 return `
                     <div class="post-waterfall-card" onclick="showPostDetail('${post.id}')">
                         <div class="waterfall-img-wrap" style="height: ${imgHeight}">
-                            <img src="${post.image}" alt="post img">
+                            <img src="${post.image}" alt="post img" loading="lazy">
                         </div>
                         <div class="waterfall-body">
                             <span class="waterfall-meta-loc">${state.language === 'zh' ? post.location.split(' ')[0] : post.location.split(',')[0]}</span>
                             <p class="waterfall-title">${state.language === 'zh' ? post.content : post.contentEn}</p>
                             <div class="waterfall-footer">
                                 <div class="waterfall-author" onclick="event.stopPropagation(); ${post.petId ? `showPetProfile('${post.petId}')` : ''}">
-                                    <img class="waterfall-author-av" src="${post.avatar}" alt="av">
+                                    <img class="waterfall-author-av" src="${post.avatar}" alt="av" loading="lazy">
                                     <span class="waterfall-author-name">${petObj ? petObj.name : post.username}</span>
                                 </div>
                                 <div class="waterfall-like ${post.curious ? 'active' : ''}" onclick="event.stopPropagation(); toggleCurious('${post.id}')">
                                     <span>${post.curious ? '❤️' : '🤍'}</span>
-                                    <span>${post.curiousCount}</span>
+                                    <span>${formatNumber(post.curiousCount)}</span>
                                 </div>
                             </div>
                         </div>
@@ -718,12 +769,74 @@ function renderPageCircles() {
     `;
 }
 
+// ---- Page: Circles Directory with Tab header (圈子 & 百科养护) ----
+function renderPageCircles() {
+    const container = document.getElementById('page-circles');
+    if (!container) return;
+
+    // Sub-navigation tabs
+    const tabHeader = `
+        <div class="circles-tabs-header">
+            <button class="circles-tab-btn ${state.circlesSubTab === 'circles' ? 'active' : ''}" onclick="switchCirclesSubTab('circles')">
+                ${state.language === 'zh' ? '百科圈子' : 'Circles'}
+            </button>
+            <button class="circles-tab-btn ${state.circlesSubTab === 'care' ? 'active' : ''}" onclick="switchCirclesSubTab('care')">
+                ${state.language === 'zh' ? '养护常识' : 'Care Encyclo'}
+            </button>
+        </div>
+    `;
+
+    if (state.circlesSubTab === 'circles') {
+        const sectionsHtml = circlesCatalog.map(sec => {
+            const title = state.language === 'zh' ? sec.category : sec.categoryEn;
+            
+            const gridHtml = sec.items.map(item => `
+                <div class="circle-card" style="padding:10px; gap:10px;" onclick="enterExoticCircle('${item.key}', '${item.name}')">
+                    <img class="circle-img" src="${item.img}" style="width:36px; height:36px; border-radius:50%;" alt="circle logo" loading="lazy">
+                    <div class="circle-info">
+                        <h5 class="circle-name" style="font-size:12px;">${state.language === 'zh' ? item.name : item.nameEn}</h5>
+                        <span class="circle-meta" style="font-size:9px;">${item.count}</span>
+                    </div>
+                </div>
+            `).join('');
+
+            return `
+                <div style="margin-bottom: 20px;">
+                    <h4 class="section-title" style="font-size:13px; margin-bottom:10px; color:var(--color-accent); border-left:3px solid var(--color-accent); padding-left:8px;">${title}</h4>
+                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+                        ${gridHtml}
+                    </div>
+                </div>
+            `;
+        }).join('');
+
+        container.innerHTML = `
+            ${tabHeader}
+            <div style="margin-bottom: 12px;">
+                <p style="font-size:11px; color:var(--text-secondary); line-height:1.4;">
+                    ${state.language === 'zh' ? '这里汇集了全球数十种小众异宠圈子，点击即可筛选专区动态。' : 'Dozens of exotic circles around the world, click to filter.'}
+                </p>
+            </div>
+            ${sectionsHtml}
+        `;
+    } else {
+        // Render Care Encyclopedia Layout
+        renderPageCare(container, tabHeader);
+    }
+}
+
+function switchCirclesSubTab(subTab) {
+    state.circlesSubTab = subTab;
+    state.activeCareDetailKey = null; // Close detail if open
+    renderPageCircles();
+}
+
 function enterExoticCircle(speciesKey, name) {
     state.selectedSpeciesFilter = speciesKey;
     switchTab('home');
     alert(state.language === 'zh' 
-        ? `已成功进入 [${name}] 百科圈子，已为您在首页筛选出相应的生活瞬间！`
-        : `Entered [${name}] circle. Dynamic feed filtered on homepage!`);
+        ? `已为您在首页筛选出 [${name}] 的相关动态！`
+        : `Filtered homepage dynamic feed for [${name}]!`);
 }
 
 // ---- Page: Record (+ 号创作页) ----
@@ -799,6 +912,47 @@ function renderPageMe() {
     const container = document.getElementById('page-me');
     if (!container) return;
 
+    if (!state.isLoggedIn) {
+        container.innerHTML = `
+            <div class="me-card" style="padding: 24px 16px;">
+                <div style="position: relative; display: inline-block; margin-bottom: 12px;">
+                    <div style="width: 64px; height: 64px; border-radius: 50%; background-color: var(--tag-bg); display: flex; align-items: center; justify-content: center; color: var(--text-secondary); border: 2px solid var(--border-color); margin: 0 auto;">
+                        <svg style="width:32px; height:32px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+                    </div>
+                </div>
+                <h4 class="me-name" style="font-size: 15px; font-weight: 700; margin-bottom: 6px;">
+                    ${state.language === 'zh' ? '游客模式' : 'Guest Mode'}
+                </h4>
+                <p class="me-desc" style="font-size: 10px; color: var(--text-secondary); max-width: 220px; margin: 0 auto 16px auto; line-height: 1.4;">
+                    ${state.language === 'zh' ? '开启属于你的异宠记录之旅，发表瞬间、提问求助与大咖交流！' : 'Join Petverse to start tracking your pets, publishing moments, and exchanging tips!'}
+                </p>
+                <button class="join-btn" onclick="showLoginModal()" style="padding: 8px 24px; font-size: 11px; border-radius: 16px; width: auto; max-width: 160px; margin: 0 auto; display: block;">
+                    ${state.language === 'zh' ? '注册 / 登录' : 'Register / Log In'}
+                </button>
+            </div>
+
+            <div class="menu-list" style="margin-top: 16px;">
+                <div class="menu-item" onclick="toggleThemeCtrl()">
+                    <span data-t="settingTheme">${getT('settingTheme')}</span>
+                    <span style="color:var(--color-accent); font-weight:700;">${state.theme === 'theme-dark' ? 'Rock Grey' : 'Warm White'}</span>
+                </div>
+                <div class="menu-item" onclick="toggleLanguageCtrl()">
+                    <span data-t="settingLang">${getT('settingLang')}</span>
+                    <span style="color:var(--color-accent); font-weight:700;">${state.language === 'zh' ? '简体中文' : 'English'}</span>
+                </div>
+                <div class="menu-item" onclick="showCommunityGuidelines()">
+                    <span>${state.language === 'zh' ? '社区公约' : 'Community Guidelines'}</span>
+                    <span style="color:var(--color-accent);">📖</span>
+                </div>
+                <div class="menu-item" onclick="alert('Petverse version: 2.0.0 Global community Edition')">
+                    <span data-t="settingAbout">${getT('settingAbout')}</span>
+                    <span>v2.0.0</span>
+                </div>
+            </div>
+        `;
+        return;
+    }
+
     const showcasePills = state.pets.map(p => `
         <div class="me-pet-pill" onclick="showPetProfile('${p.id}')">
             🟢 ${p.name}
@@ -809,7 +963,7 @@ function renderPageMe() {
     container.innerHTML = `
         <div class="me-card">
             <div style="position: relative; display: inline-block; cursor: pointer; margin-bottom: 8px;" onclick="triggerUserAvatarSelect()">
-                <img class="me-avatar" src="${state.userProfile.avatar}" alt="avatar">
+                <img class="me-avatar" src="${state.userProfile.avatar}" alt="avatar" loading="lazy">
                 <div style="position: absolute; bottom: 0; right: 0; background: var(--color-brand); color: #fff; border-radius: 50%; width: 18px; height: 18px; display: flex; align-items: center; justify-content: center; font-size: 10px; border: 1.5px solid var(--bg-secondary);">📷</div>
             </div>
             <h4 class="me-name" onclick="changeMeNamePrompt()" style="cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 4px; font-size: 15px;">
@@ -839,9 +993,17 @@ function renderPageMe() {
                 <span data-t="settingLang">${getT('settingLang')}</span>
                 <span style="color:var(--color-accent); font-weight:700;">${state.language === 'zh' ? '简体中文' : 'English'}</span>
             </div>
+            <div class="menu-item" onclick="showCommunityGuidelines()">
+                <span>${state.language === 'zh' ? '社区公约' : 'Community Guidelines'}</span>
+                <span style="color:var(--color-accent);">📖</span>
+            </div>
             <div class="menu-item" onclick="alert('Petverse version: 2.0.0 Global community Edition')">
                 <span data-t="settingAbout">${getT('settingAbout')}</span>
                 <span>v2.0.0</span>
+            </div>
+            <div class="menu-item" onclick="performLogOut()" style="border-top: 1.5px solid var(--border-color); margin-top: 10px; padding-top: 12px; cursor: pointer;">
+                <span style="color: #E87A51; font-weight: bold;">${state.language === 'zh' ? '退出登录' : 'Log Out'}</span>
+                <span style="color: #E87A51;">➔</span>
             </div>
         </div>
     `;
@@ -876,7 +1038,7 @@ function renderPagePetProfile() {
         <div class="pet-profile-header">
             <div class="pet-cover"></div>
             <div class="pet-avatar-wrap">
-                <img class="pet-avatar-img" src="${pet.image}" alt="pet avatar">
+                <img class="pet-avatar-img" src="${pet.image}" alt="pet avatar" loading="lazy">
                 <div class="pet-actions-row">
                     <button class="pet-btn-round ${pet.followed ? 'active' : ''}" onclick="toggleFollowPet('${pet.id}')" title="${getT('followPet')}">
                         ${pet.followed ? '❤️' : '🤍'}
@@ -890,7 +1052,9 @@ function renderPagePetProfile() {
             <div class="pet-profile-body">
                 <div class="pet-profile-title-row">
                     <h3 class="pet-profile-name">${pet.name}</h3>
-                    <span style="font-size:10px; color:var(--text-secondary); font-family:var(--font-sans)">COORDS: ${pet.coordinates}</span>
+                    <span style="font-size:10px; color:var(--text-secondary); font-family:var(--font-sans)">
+                        📍 ${state.language === 'zh' ? pet.location.split(' (')[0] : (pet.location.includes(' (') ? pet.location.split(' (')[1].replace(')', '') : pet.location)}
+                    </span>
                 </div>
                 <p class="pet-profile-species">${state.language === 'zh' ? pet.species : pet.speciesKey.replace('_', ' ')} · ${pet.gender}</p>
                 
@@ -904,7 +1068,7 @@ function renderPagePetProfile() {
                         <span class="pet-stat-label" data-t="companionDays">${getT('companionDays')}</span>
                     </div>
                     <div class="pet-stat-col">
-                        <span class="pet-stat-num">${pet.followersCount}</span>
+                        <span class="pet-stat-num">${formatNumber(pet.followersCount)}</span>
                         <span class="pet-stat-label" data-t="followers">${getT('followers')}</span>
                     </div>
                     <div class="pet-stat-col">
@@ -923,8 +1087,17 @@ function renderPagePetProfile() {
             </p>
         </div>
 
+        <!-- Weight Tracking Line Chart -->
+        <div class="pet-chart-container">
+            <div class="pet-chart-title">
+                <span>📈 ${state.language === 'zh' ? '历史体重记录折线图 (g)' : 'Weight Progress Chart (g)'}</span>
+                <span style="color:var(--color-accent); font-weight:bold;">${state.language === 'zh' ? '正常发育中' : 'Healthy Growth'}</span>
+            </div>
+            <canvas id="pet-weight-chart" style="width:100%; height:120px; display:block;"></canvas>
+        </div>
+
         <!-- Growth Timeline -->
-        <div class="timeline-card">
+        <div class="timeline-card" style="margin-top: 10px;">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
                 <h4 class="section-title" style="font-size:13px; color:var(--color-brand); margin-bottom:0;" data-t="growthTimeline">${getT('growthTimeline')}</h4>
                 <button class="join-btn" onclick="openTimelineModal()" style="padding:4px 8px; font-size:9px; border-radius:10px; cursor:pointer;">＋ 记录日志</button>
@@ -934,6 +1107,8 @@ function renderPagePetProfile() {
             </div>
         </div>
     `;
+    // Delay slightly to ensure canvas DOM is ready
+    setTimeout(() => drawPetWeightChart('pet-weight-chart'), 50);
 }
 
 // ---- Page: Post Detail (帖子详情) ----
@@ -959,14 +1134,20 @@ function renderPagePostDetail() {
         postText = state.language === 'zh' ? post.contentEn : post.content;
     }
 
-    const commentsHtml = post.commentsList.map(c => {
+    const commentsHtml = post.commentsList.filter(c => !state.blockedUsers.includes(c.name)).map(c => {
         let commentText = c.text;
         if (isCommentsTranslated) {
             commentText = translateTextLocal(c.text);
         }
         return `
-            <div class="comment-row">
-                <span class="comment-row-user">${c.name}</span>: ${commentText} ${isCommentsTranslated ? '<span style="font-size:8px; color:var(--color-accent)">(已翻译/Translated)</span>' : ''}
+            <div class="comment-row" style="display:flex; justify-content:space-between; align-items:center; padding: 4px 0;">
+                <div>
+                    <span class="comment-row-user">${c.name}</span>: ${commentText} ${isCommentsTranslated ? '<span style="font-size:8px; color:var(--color-accent)">(已翻译/Translated)</span>' : ''}
+                </div>
+                <div style="display:flex; gap:6px; font-size:8px; flex-shrink:0;">
+                    <span style="color:var(--text-secondary); cursor:pointer;" onclick="reportContent('comment', '${c.name}_${post.id}')" title="${state.language === 'zh' ? '举报' : 'Report'}">🏳️</span>
+                    <span style="color:var(--text-secondary); cursor:pointer;" onclick="confirmBlockUser('${c.name}')" title="${state.language === 'zh' ? '拉黑' : 'Block'}">🚫</span>
+                </div>
             </div>
         `;
     }).join('');
@@ -978,15 +1159,21 @@ function renderPagePostDetail() {
 
         <div class="magazine-card layout-single-photo">
             <div class="card-header">
-                <img class="card-avatar" src="${post.avatar}" alt="av">
-                <div class="card-meta-info">
-                    <span class="pet-name-label">${post.username}</span>
+                <img class="card-avatar" src="${post.avatar}" alt="av" loading="lazy">
+                <div class="card-meta-info" style="width: 100%;">
+                    <div style="display:flex; justify-content:space-between; align-items:center; width:100%;">
+                        <span class="pet-name-label">${post.username}</span>
+                        <div style="display:flex; gap:8px; font-size:9px;">
+                            <span style="color:var(--text-secondary); cursor:pointer; font-weight:normal;" onclick="reportContent('post', '${post.id}')">${state.language === 'zh' ? '举报' : 'Report'}</span>
+                            <span style="color:var(--text-secondary); cursor:pointer; font-weight:normal;" onclick="confirmBlockUser('${post.username}')">${state.language === 'zh' ? '拉黑' : 'Block'}</span>
+                        </div>
+                    </div>
                     <span class="owner-meta-row">${state.language === 'zh' ? post.location : post.location.split('(')[0]} · ${state.language === 'zh' ? post.time : post.timeEn}</span>
                 </div>
             </div>
 
             <div class="card-image-wrap">
-                <img src="${post.image}" alt="detail image">
+                <img src="${post.image}" alt="detail image" loading="lazy">
             </div>
 
             <div class="card-body">
@@ -1001,15 +1188,15 @@ function renderPagePostDetail() {
             <div class="card-actions">
                 <div class="action-pill ${post.curious ? 'active' : ''}" onclick="toggleCurious('${post.id}', true)">
                     <svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
-                    <span>${getT('curious')} (${post.curiousCount})</span>
+                    <span>${getT('curious')} (${formatNumber(post.curiousCount)})</span>
                 </div>
                 <div class="action-pill ${post.shared ? 'active' : ''}" onclick="toggleSharedExperience('${post.id}', true)">
                     <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
-                    <span>${getT('shared')} (${post.sharedCount})</span>
+                    <span>${getT('shared')} (${formatNumber(post.sharedCount)})</span>
                 </div>
                 <div class="action-pill" onclick="openCommentDrawer('${post.id}')" style="cursor: pointer;">
                     <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
-                    <span>${getT('comment')} (${post.commentCount})</span>
+                    <span>${getT('comment')} (${formatNumber(post.commentCount)})</span>
                 </div>
             </div>
         </div>
@@ -1052,6 +1239,10 @@ function switchTab(tabId) {
     state.activePetProfileId = null;
     state.activePostDetailId = null;
 
+    // Reset scroll container position when switching pages
+    const scrollContainer = document.getElementById('screen-body-container');
+    if (scrollContainer) scrollContainer.scrollTop = 0;
+
     document.querySelectorAll('.phone-screen .app-page').forEach(page => {
         page.classList.remove('active');
     });
@@ -1080,6 +1271,10 @@ function showPetProfile(petId) {
     state.activePetProfileId = petId;
     state.activePostDetailId = null;
     
+    // Reset scroll container
+    const scrollContainer = document.getElementById('screen-body-container');
+    if (scrollContainer) scrollContainer.scrollTop = 0;
+
     document.querySelectorAll('.phone-screen .app-page').forEach(page => {
         page.classList.remove('active');
     });
@@ -1092,6 +1287,10 @@ function showPetProfile(petId) {
 function showPostDetail(postId) {
     state.activePostDetailId = postId;
     state.activePetProfileId = null;
+
+    // Reset scroll container
+    const scrollContainer = document.getElementById('screen-body-container');
+    if (scrollContainer) scrollContainer.scrollTop = 0;
 
     document.querySelectorAll('.phone-screen .app-page').forEach(page => {
         page.classList.remove('active');
@@ -1107,6 +1306,10 @@ function goBackToFeed() {
 }
 
 async function toggleCurious(postId, isDetailPage = false) {
+    if (!state.isLoggedIn) {
+        showLoginModal(() => toggleCurious(postId, isDetailPage));
+        return;
+    }
     const post = state.posts.find(p => p.id === postId);
     if (!post) return;
 
@@ -1144,6 +1347,10 @@ function toggleCuriousOffline(post) {
 }
 
 function toggleSharedExperience(postId, isDetailPage = false) {
+    if (!state.isLoggedIn) {
+        showLoginModal(() => toggleSharedExperience(postId, isDetailPage));
+        return;
+    }
     const post = state.posts.find(p => p.id === postId);
     if (!post) return;
 
@@ -1202,6 +1409,10 @@ function removePostMedia() {
 }
 
 async function submitNewStory() {
+    if (!state.isLoggedIn) {
+        showLoginModal(() => submitNewStory());
+        return;
+    }
     const textEl = document.getElementById('new-story-textarea');
     const petSelectEl = document.getElementById('new-story-pet-select');
 
@@ -1300,6 +1511,10 @@ function handlePetImageUpload(event) {
 }
 
 async function addNewPetPrompt() {
+    if (!state.isLoggedIn) {
+        showLoginModal(() => addNewPetPrompt());
+        return;
+    }
     const name = prompt(state.language === 'zh' ? '请输入宠物名字:' : 'Enter pet name:');
     if (!name) return;
     const species = prompt(state.language === 'zh' ? '请输入宠物类别(如肥尾守宫, 鬃狮蜥):' : 'Enter species:');
@@ -1410,10 +1625,16 @@ function renderCommentDrawerList(post) {
         return;
     }
 
-    listContainer.innerHTML = post.commentsList.map(c => `
-        <div class="comment-row" style="padding: 6px 0;">
-            <span class="comment-row-user" style="font-weight:700; color: var(--color-brand);">${c.name}</span>: 
-            <span style="color: var(--text-primary); font-size:11px;">${c.text}</span>
+    listContainer.innerHTML = post.commentsList.filter(c => !state.blockedUsers.includes(c.name)).map(c => `
+        <div class="comment-row" style="padding: 6px 0; display:flex; justify-content:space-between; align-items:center;">
+            <div>
+                <span class="comment-row-user" style="font-weight:700; color: var(--color-brand);">${c.name}</span>: 
+                <span style="color: var(--text-primary); font-size:11px;">${c.text}</span>
+            </div>
+            <div style="display:flex; gap:6px; font-size:9px; flex-shrink:0;">
+                <span style="color:var(--text-secondary); cursor:pointer;" onclick="reportContent('comment', '${c.name}_${post.id}')" title="${state.language === 'zh' ? '举报' : 'Report'}">🏳️</span>
+                <span style="color:var(--text-secondary); cursor:pointer;" onclick="confirmBlockUser('${c.name}')" title="${state.language === 'zh' ? '拉黑' : 'Block'}">🚫</span>
+            </div>
         </div>
     `).join('');
     
@@ -1421,6 +1642,10 @@ function renderCommentDrawerList(post) {
 }
 
 async function submitNewComment() {
+    if (!state.isLoggedIn) {
+        showLoginModal(() => submitNewComment());
+        return;
+    }
     const postId = state.activeCommentPostId;
     if (!postId) return;
 
@@ -1546,6 +1771,7 @@ function selectHotTopic(topicId) {
 
 async function changeLanguage(lang) {
     state.language = lang;
+    localStorage.setItem('petverse_language', lang);
     updateAppLanguage();
     renderHeader();
     renderTabs();
@@ -1577,6 +1803,19 @@ function toggleLanguageCtrl() {
 async function changeTheme(theme) {
     state.theme = theme;
     document.body.className = theme;
+    localStorage.setItem('petverse_theme', theme);
+
+    // Update Top Header Theme Toggle Icon shape
+    const toggleSvg = document.getElementById('theme-toggle-svg');
+    if (toggleSvg) {
+        if (theme === 'theme-light') {
+            // Sun shape SVG
+            toggleSvg.innerHTML = `<circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>`;
+        } else {
+            // Moon shape SVG
+            toggleSvg.innerHTML = `<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>`;
+        }
+    }
 
     document.querySelectorAll('.ctrl-theme-btn').forEach(btn => btn.classList.remove('active'));
     const activeBtn = document.getElementById(`ctrl-theme-${theme}`);
@@ -1617,8 +1856,12 @@ function triggerMockMapDiscovery(locationKey) {
 async function initApp() {
     await syncState();
     loadUserProfile();
+    loadQAQuestions();
 
     document.body.className = state.theme;
+
+    // Apply the loaded theme icon shape initially
+    changeTheme(state.theme);
 
     const langBtn = document.getElementById(`ctrl-lang-${state.language}`);
     if (langBtn) {
@@ -1631,19 +1874,55 @@ async function initApp() {
         themeBtn.classList.add('active');
     }
 
-    // Bind bottom navbar click listeners
+    // Bind bottom navbar click listeners with smooth scroll-to-top support
     document.querySelectorAll('.bottom-nav .nav-item').forEach(item => {
         item.addEventListener('click', (e) => {
             const tabId = item.getAttribute('data-tab');
-            if (tabId) switchTab(tabId);
+            if (tabId) {
+                if (state.activeTab === tabId) {
+                    scrollToTopSmoothly();
+                } else {
+                    switchTab(tabId);
+                }
+            }
         });
     });
+
+    // Listen scroll events on body container for floating back-to-top button
+    const scrollContainer = document.getElementById('screen-body-container');
+    const backToTopBtn = document.getElementById('back-to-top-btn');
+    if (scrollContainer && backToTopBtn) {
+        scrollContainer.addEventListener('scroll', () => {
+            if (scrollContainer.scrollTop > 300) {
+                backToTopBtn.style.display = 'flex';
+                setTimeout(() => backToTopBtn.classList.add('visible'), 10);
+            } else {
+                backToTopBtn.classList.remove('visible');
+                setTimeout(() => {
+                    if (!backToTopBtn.classList.contains('visible')) {
+                        backToTopBtn.style.display = 'none';
+                    }
+                }, 300);
+            }
+        });
+    }
 
     updateAppLanguage();
     renderHeader();
 
     // Default to 'home' feed
     switchTab('home');
+
+    // Smoothly fade out brand loader once fully initialized
+    setTimeout(() => {
+        const loader = document.getElementById('brand-loader');
+        if (loader) {
+            loader.classList.add('fade-out');
+            setTimeout(() => {
+                loader.style.display = 'none';
+            }, 400);
+        }
+    }, 800);
 }
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -1768,6 +2047,10 @@ function closeTimelineModal() {
 }
 
 async function submitNewTimelineLog() {
+    if (!state.isLoggedIn) {
+        showLoginModal(() => submitNewTimelineLog());
+        return;
+    }
     const petId = state.activePetProfileId;
     if (!petId) return;
 
@@ -1990,4 +2273,619 @@ function changeMeDescPrompt() {
         renderPageMe();
     }
 }
+
+// ==========================================
+// 10. ENCYCLOPAEDIA, Q&A BOARD & CANVAS GRAPH
+// ==========================================
+
+const careEncyclopaedia = [
+    {
+        key: 'crested_gecko',
+        name: '睫角守宫',
+        nameEn: 'Crested Gecko',
+        difficulty: '⭐️⭐️ (新手友好)',
+        difficultyEn: '⭐️⭐️ (Beginner Friendly)',
+        temp: '22℃ - 26℃ (避免超过28℃)',
+        tempEn: '22°C - 26°C (Avoid >28°C)',
+        humidity: '60% - 80% (夜间喷水)',
+        humidityEn: '60% - 80% (Spray at night)',
+        diet: '果泥为主，辅以钙粉卷蟋蟀 (每周1-2次)',
+        dietEn: 'Crested Gecko Diet primarily, dusted insects 1-2x/week',
+        substrate: '椰土 / 树皮 / 厨房纸',
+        substrateEn: 'Coco fiber / Orchid bark / Paper towel',
+        lifespan: '10 - 15 年 / 15-20 cm',
+        lifespanEn: '10 - 15 years / 15-20 cm',
+        diseases: '缺钙软骨病 (MBD)、蜕皮困难、尾部自切',
+        diseasesEn: 'Metabolic Bone Disease (MBD), Dysecdysis, Tail autotomy',
+        brief: '睫角守宫不需要额外紫外线灯(UVB)，对温度要求温和，是非常适合公寓饲养的入门爬宠。',
+        briefEn: 'Requires no UVB, mild temperature needs, perfect for apartment beginners.'
+    },
+    {
+        key: 'veiled_chameleon',
+        name: '高冠变色龙',
+        nameEn: 'Veiled Chameleon',
+        difficulty: '⭐️⭐️⭐️⭐️ (中高难度)',
+        difficultyEn: '⭐️⭐️⭐️⭐️ (Intermediate/Advanced)',
+        temp: '日间环境 26-28℃，晒点 32-35℃，夜间 20℃',
+        tempEn: 'Daytime 26-28°C, Basking 32-35°C, Night 20°C',
+        humidity: '50% - 70% (需要滴水器喝流动水)',
+        humidityEn: '50% - 70% (Requires dripping water)',
+        diet: '蟋蟀、杜比亚蟑螂，需频繁添加钙粉与D3',
+        dietEn: 'Crickets, Dubia roaches; requires regular calcium + D3',
+        substrate: '不建议用散装垫材，裸缸或绿植盆栽',
+        substrateEn: 'Bare bottom recommended, potted live plants',
+        lifespan: '5 - 8 年 / 30-45 cm',
+        lifespanEn: '5 - 8 years / 30-45 cm',
+        diseases: '呼吸道感染、缺钙软骨病、眼睛发炎(拒食)',
+        diseasesEn: 'Respiratory Infection, MBD, Eye infection',
+        brief: '高冠变色龙需要高通风网箱、UVB日照灯以及流动的饮用水，对环境通风和水源要求高。',
+        briefEn: 'Requires mesh enclosure for ventilation, UVB lighting, and dripping water system.'
+    },
+    {
+        key: 'corn_snake',
+        name: '玉米蛇',
+        nameEn: 'Corn Snake',
+        difficulty: '⭐️ (极易上手)',
+        difficultyEn: '⭐️ (Very Easy)',
+        temp: '冷区 24-26℃，热区 28-30℃ (加热垫温控)',
+        tempEn: 'Cool side 24-26°C, Warm side 28-30°C (via heat mat)',
+        humidity: '40% - 50% (蜕皮期加湿至70%)',
+        humidityEn: '40% - 50% (Increase to 70% during shed)',
+        diet: '大小合适的小白鼠 (幼蛇每5-7天一只，成蛇每10-14天)',
+        dietEn: 'Frozen-thawed mice (Pinkies for babies 5-7 days, adults 10-14 days)',
+        substrate: '白杨木屑 / 玉米芯 / 蛇沙',
+        substrateEn: 'Aspen shavings / Corn cob / Snake bedding',
+        lifespan: '15 - 20 年 / 100-150 cm',
+        lifespanEn: '15 - 20 years / 100-150 cm',
+        diseases: '肠胃炎(吐食)、蜕皮不全、寄生虫',
+        diseasesEn: 'Gastroenteritis, Dysecdysis, Parasites',
+        brief: '温顺、花色丰富、无毒无味。只需准备好加温区和躲避，是最好养的冷血宠物之一。',
+        briefEn: 'Gentle, colorful, non-venomous, odorless. Just need heat and hides. The best beginner snake.'
+    },
+    {
+        key: 'bearded_dragon',
+        name: '鬃狮蜥',
+        nameEn: 'Bearded Dragon',
+        difficulty: '⭐️⭐️⭐️ (新手适中)',
+        difficultyEn: '⭐️⭐️⭐️ (Moderate)',
+        temp: '冷区 28-30℃，晒点 38-42℃，夜间不低于20℃',
+        tempEn: 'Cool side 28-30°C, Basking 38-42°C, Night >20°C',
+        humidity: '30% - 40% (保持干燥，避免积水)',
+        humidityEn: '30% - 40% (Keep dry, avoid dampness)',
+        diet: '幼体偏肉食(蟋蟀/蟑螂)，成体偏素食(油麦菜/蒲公英)',
+        dietEn: 'Insects for juveniles, greens/veggies for adults; D3 calcium required',
+        substrate: '爬砂 / 瓷砖 / 豆腐砂 (避免误食细砂)',
+        substrateEn: 'Reptile carpet / Tile / Paper pellets',
+        lifespan: '10 - 12 年 / 45-60 cm',
+        lifespanEn: '10 - 12 years / 45-60 cm',
+        diseases: '缺钙抽搐、寄生虫感染、肠道阻塞',
+        diseasesEn: 'Calcium deficiency seizures, Parasites, Impaction',
+        brief: '互动性极佳，喜欢晒太阳和发呆，需要大空间饲养箱与强烈的UVB光照。',
+        briefEn: 'Highly interactive, loves basking, requires a large terrarium with strong UVB.'
+    }
+];
+
+function loadQAQuestions() {
+    const saved = localStorage.getItem('petverse_questions');
+    if (saved) {
+        try {
+            state.questions = JSON.parse(saved);
+        } catch (e) {
+            console.error('Error parsing questions', e);
+        }
+    }
+    if (!state.questions || state.questions.length === 0) {
+        state.questions = [
+            {
+                id: 'q1',
+                title: '睫角守宫眼睛好像有点陷下去，是脱水了吗？',
+                titleEn: 'My crested gecko\'s eyes look sunken. Is it dehydrated?',
+                speciesKey: 'crested_gecko',
+                author: '新手爬爬王',
+                authorBadge: 'keeper',
+                solved: false,
+                repliesCount: 4,
+                replyAuthor: '芭比堂林医生',
+                replyAuthorBadge: 'vet',
+                replyText: '很有可能是脱水。建议立刻在饲养箱内喷水，或者用温水泡澡10分钟补水。'
+            },
+            {
+                id: 'q2',
+                title: '求助！玉米蛇已经拒食两次了，肚子有点鼓，需要喂益生菌吗？',
+                titleEn: 'Help! Corn snake refused food twice, belly looks bloated, probiotics?',
+                speciesKey: 'corn_snake',
+                author: '魔都蛇精阁',
+                authorBadge: 'keeper',
+                solved: true,
+                repliesCount: 12,
+                replyAuthor: '蛇圈大佬-陈',
+                replyAuthorBadge: 'veteran',
+                replyText: '肚子鼓起可能是快要排便或有宿便。暂时停食，保持静养，把温水区控温在28度，通常会自动排便。不要急着喂药。'
+            }
+        ];
+    }
+}
+
+function saveQAQuestions() {
+    localStorage.setItem('petverse_questions', JSON.stringify(state.questions));
+}
+
+function renderPageCare(container, tabHeader) {
+    if (state.activeCareDetailKey) {
+        const item = careEncyclopaedia.find(c => c.key === state.activeCareDetailKey);
+        if (item) {
+            renderCareDetailPage(container, item);
+            return;
+        }
+    }
+
+    const speciesCards = careEncyclopaedia.map(c => `
+        <div class="care-species-card" onclick="showCareDetail('${c.key}')">
+            <span class="care-species-name">${state.language === 'zh' ? c.name : c.nameEn}</span>
+            <span class="care-species-difficulty">${state.language === 'zh' ? c.difficulty : c.difficultyEn}</span>
+            <span class="care-species-brief">${state.language === 'zh' ? c.brief : c.briefEn}</span>
+        </div>
+    `).join('');
+
+    // Q&A questions list
+    const questionsHtml = state.questions.map(q => {
+        const title = state.language === 'zh' ? q.title : q.titleEn;
+        let authorBadgeText = state.language === 'zh' ? '玩家' : 'Keeper';
+        let badgeClass = 'keeper';
+        if (q.replyAuthorBadge === 'vet') {
+            authorBadgeText = state.language === 'zh' ? '🩺 认证兽医' : '🩺 Verified Vet';
+            badgeClass = 'vet';
+        } else if (q.replyAuthorBadge === 'veteran') {
+            authorBadgeText = state.language === 'zh' ? '👑 资深爬友' : '👑 Veteran Keeper';
+            badgeClass = 'veteran';
+        }
+        
+        const statusText = q.solved 
+            ? (state.language === 'zh' ? '已解决' : 'Resolved') 
+            : (state.language === 'zh' ? '求助中' : 'Help');
+        const statusClass = q.solved ? 'resolved' : 'unresolved';
+
+        return `
+            <div class="qa-question-card" onclick="alert('最新回复 (by ${q.replyAuthor}):\\n\\n${q.replyText}')">
+                <div class="qa-question-title-row">
+                    <span class="qa-status-badge ${statusClass}">${statusText}</span>
+                    <span class="qa-question-title">${title}</span>
+                </div>
+                <div class="qa-question-meta">
+                    <div>
+                        <span>by ${q.author}</span>
+                        <span class="qa-user-badge ${badgeClass}">${authorBadgeText}</span>
+                    </div>
+                    <div style="display: flex; gap: 8px; align-items: center;">
+                        <span>💬 ${q.repliesCount}</span>
+                        <span style="color:var(--color-accent); font-weight:bold; cursor:pointer;" onclick="event.stopPropagation(); toggleQuestionSolved('${q.id}')">
+                            ${q.solved ? (state.language === 'zh' ? '设为未解决' : 'Reopen') : (state.language === 'zh' ? '设为已解决' : 'Solve')}
+                        </span>
+                    </div>
+                </div>
+            </div>
+        `;
+    }).join('');
+
+    container.innerHTML = `
+        ${tabHeader}
+        <div style="margin-bottom: 12px; text-align: left;">
+            <p style="font-size:11px; color:var(--text-secondary); line-height:1.4;">
+                ${state.language === 'zh' ? '查阅最核心的异宠日常饲养要求，查看温度、湿度、食性配比。' : 'Browse crucial care guidelines: temperature, humidity, diet.'}
+            </p>
+        </div>
+        
+        <div class="care-species-grid">
+            ${speciesCards}
+        </div>
+
+        <!-- Q&A Section -->
+        <div class="qa-board-section">
+            <div class="qa-board-header">
+                <h4 class="section-title" style="font-size:12px; margin-bottom:0; color:var(--color-brand)">❓ ${state.language === 'zh' ? '爬友避坑求助板' : 'Keeper Q&A Board'}</h4>
+                <button class="join-btn" onclick="submitNewQuestionPrompt()" style="padding: 3px 8px; font-size: 8px; border-radius: 8px; cursor:pointer;">${state.language === 'zh' ? '我要提问' : 'Ask Question'}</button>
+            </div>
+            <div class="qa-questions-list">
+                ${questionsHtml}
+            </div>
+        </div>
+    `;
+}
+
+function showCareDetail(speciesKey) {
+    state.activeCareDetailKey = speciesKey;
+    renderPageCircles();
+}
+
+function renderCareDetailPage(container, item) {
+    container.innerHTML = `
+        <div class="detail-back-bar" onclick="goBackToCareList()" style="margin-bottom: 12px; text-align: left;">
+            <span>⬅️ ${state.language === 'zh' ? '返回百科' : 'Back to Encyclopaedia'}</span>
+        </div>
+
+        <div class="care-detail-header">
+            <h3 class="care-detail-title">${state.language === 'zh' ? item.name : item.nameEn}</h3>
+            <span class="care-detail-diff-rating">${state.language === 'zh' ? '新手友好度: ' + item.difficulty : 'Difficulty: ' + item.difficultyEn}</span>
+            <p style="font-size: 10px; color: var(--text-secondary); margin-top: 8px; line-height: 1.4;">
+                ${state.language === 'zh' ? item.brief : item.briefEn}
+            </p>
+
+            <div class="care-spec-grid">
+                <div class="care-spec-item">
+                    <span class="care-spec-label">${state.language === 'zh' ? '🌡️ 适宜温度' : '🌡️ Target Temp'}</span>
+                    <span class="care-spec-value">${state.language === 'zh' ? item.temp : item.tempEn}</span>
+                </div>
+                <div class="care-spec-item">
+                    <span class="care-spec-label">${state.language === 'zh' ? '💧 适宜湿度' : '💧 Humidity'}</span>
+                    <span class="care-spec-value">${state.language === 'zh' ? item.humidity : item.humidityEn}</span>
+                </div>
+                <div class="care-spec-item">
+                    <span class="care-spec-label">${state.language === 'zh' ? '🥩 食性配比' : '🥩 Diet & Food'}</span>
+                    <span class="care-spec-value">${state.language === 'zh' ? item.diet : item.dietEn}</span>
+                </div>
+                <div class="care-spec-item">
+                    <span class="care-spec-label">${state.language === 'zh' ? '🪵 垫材推荐' : '🪵 Bedding'}</span>
+                    <span class="care-spec-value">${state.language === 'zh' ? item.substrate : item.substrateEn}</span>
+                </div>
+                <div class="care-spec-item">
+                    <span class="care-spec-label">${state.language === 'zh' ? '⏳ 寿命与体型' : '⏳ Lifespan/Size'}</span>
+                    <span class="care-spec-value">${state.language === 'zh' ? item.lifespan : item.lifespanEn}</span>
+                </div>
+                <div class="care-spec-item">
+                    <span class="care-spec-label">${state.language === 'zh' ? '🏥 常见疾病' : '🏥 Common Illness'}</span>
+                    <span class="care-spec-value">${state.language === 'zh' ? item.diseases : item.diseasesEn}</span>
+                </div>
+            </div>
+
+            <!-- Legality & Regulation Warning -->
+            <div class="care-legality-warning" style="margin-top: 15px; padding: 10px; background-color: var(--tag-bg); border-radius: 8px; border-left: 4.5px solid var(--color-accent); text-align: left;">
+                <h5 style="margin: 0 0 6px 0; color: var(--color-accent); font-size: 11px; display: flex; align-items: center; gap: 4px; font-weight: bold;">
+                    ⚠️ ${state.language === 'zh' ? '饲养与法律提示' : 'Legality & Care Warning'}
+                </h5>
+                <p style="margin: 0; font-size: 9px; line-height: 1.4; color: var(--text-secondary);">
+                    ${state.language === 'zh' 
+                        ? '部分异宠物种在特定国家或地区可能受到华盛顿公约（CITES）或地方野生动物保护法限制。请在饲养前务必查阅当地林业及农业法规，坚持合法合规饲养，杜绝野捕与非法交易。' 
+                        : 'Some exotic species may be restricted by international trade conventions (e.g. CITES) or local wildlife protection laws. Please consult your local forestry and agricultural regulations before acquisition. Keep it legal and say NO to wild-catching or illegal trade.'}
+                </p>
+            </div>
+        </div>
+
+        <button class="submit-post-btn" onclick="triggerVivariumCalculatorFromCare('${item.key}')">
+            🌿 ${state.language === 'zh' ? '一键生成生态缸计算器' : 'Generate Vivarium Recipe'}
+        </button>
+    `;
+}
+
+function goBackToCareList() {
+    state.activeCareDetailKey = null;
+    renderPageCircles();
+}
+
+function triggerVivariumCalculatorFromCare(speciesKey) {
+    state.activeHomeHeaderTab = 'guide'; // care guides sub tab
+    switchTab('home');
+    setTimeout(() => {
+        const select = document.getElementById('calc-pet-species');
+        if (select) {
+            select.value = speciesKey;
+            runVivariumCalculator();
+        }
+    }, 100);
+}
+
+function submitNewQuestionPrompt() {
+    if (!state.isLoggedIn) {
+        showLoginModal(() => submitNewQuestionPrompt());
+        return;
+    }
+    const title = prompt(state.language === 'zh' ? '请输入您的问题（我们会有专业兽医和资深玩家来解答）：' : 'Enter your question (vets and veteran keepers will answer):');
+    if (!title || !title.trim()) return;
+
+    const newQ = {
+        id: 'q_' + Date.now(),
+        title: title.trim(),
+        titleEn: `[EN] ${title.trim()}`,
+        speciesKey: 'crested_gecko',
+        author: state.userProfile.username,
+        authorBadge: 'keeper',
+        solved: false,
+        repliesCount: 0,
+        replyAuthor: 'System',
+        replyAuthorBadge: 'veteran',
+        replyText: state.language === 'zh' ? '您的问题已提交到社区，正在等待兽医或资深玩家回复！' : 'Question submitted. Waiting for community responses!'
+    };
+    state.questions.unshift(newQ);
+    saveQAQuestions();
+    renderPageCircles();
+}
+
+function toggleQuestionSolved(questionId) {
+    const q = state.questions.find(item => item.id === questionId);
+    if (q) {
+        q.solved = !q.solved;
+        saveQAQuestions();
+        renderPageCircles();
+    }
+}
+
+function scrollToTopSmoothly() {
+    const container = document.getElementById('screen-body-container');
+    if (container) {
+        container.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+}
+
+function drawPetWeightChart(canvasId) {
+    const canvas = document.getElementById(canvasId);
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    const width = canvas.clientWidth;
+    const height = canvas.clientHeight;
+    canvas.width = width * 2;
+    canvas.height = height * 2;
+    ctx.scale(2, 2);
+
+    ctx.clearRect(0, 0, width, height);
+
+    const weights = [3, 12, 25, 38, 42, 45];
+    const labels = ['D1', 'D100', 'D200', 'D300', 'D400', 'D500'];
+
+    // Draw background grid lines
+    ctx.strokeStyle = state.theme === 'theme-dark' ? '#202824' : '#E6E2DC';
+    ctx.lineWidth = 1;
+    for (let i = 0; i <= 4; i++) {
+        const y = 20 + i * (height - 40) / 4;
+        ctx.beginPath();
+        ctx.moveTo(30, y);
+        ctx.lineTo(width - 20, y);
+        ctx.stroke();
+    }
+
+    // Plot points and draw line
+    ctx.beginPath();
+    ctx.lineWidth = 2.5;
+    ctx.strokeStyle = '#E87A51'; // Morandi Terracotta Accent
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
+
+    const points = weights.map((w, idx) => {
+        const x = 30 + idx * (width - 50) / (weights.length - 1);
+        const y = height - 20 - (w / 50) * (height - 40);
+        return { x, y, w, label: labels[idx] };
+    });
+
+    points.forEach((p, idx) => {
+        if (idx === 0) ctx.moveTo(p.x, p.y);
+        else ctx.lineTo(p.x, p.y);
+    });
+    ctx.stroke();
+
+    // Draw gradient fill under line
+    const grad = ctx.createLinearGradient(0, 0, 0, height);
+    grad.addColorStop(0, 'rgba(232, 122, 81, 0.25)');
+    grad.addColorStop(1, 'rgba(232, 122, 81, 0.0)');
+    ctx.beginPath();
+    ctx.moveTo(points[0].x, height - 20);
+    points.forEach(p => ctx.lineTo(p.x, p.y));
+    ctx.lineTo(points[points.length - 1].x, height - 20);
+    ctx.closePath();
+    ctx.fillStyle = grad;
+    ctx.fill();
+
+    // Draw dots and text labels
+    points.forEach(p => {
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, 4, 0, Math.PI * 2);
+        ctx.fillStyle = '#E87A51';
+        ctx.fill();
+        ctx.lineWidth = 2;
+        ctx.strokeStyle = state.theme === 'theme-dark' ? '#131A17' : '#FFFFFF';
+        ctx.stroke();
+
+        ctx.fillStyle = state.theme === 'theme-dark' ? '#E0E8E4' : '#1C2621';
+        ctx.font = '9px sans-serif';
+        ctx.fillText(p.w + 'g', p.x - 8, p.y - 8);
+
+        ctx.fillStyle = '#8CA095';
+        ctx.font = '8px sans-serif';
+        ctx.fillText(p.label, p.x - 10, height - 6);
+    });
+}
+
+// ---- Visitor / Guest Mode Interceptors & Modals ----
+function checkLoginAndExecute(callback) {
+    if (state.isLoggedIn) {
+        if (callback) callback();
+    } else {
+        showLoginModal(callback);
+    }
+}
+
+function showLoginModal(callback = null) {
+    state.loginCallback = callback;
+    state.tempLoginAvatar = 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&w=150&q=80';
+    
+    const backdrop = document.getElementById('login-modal-backdrop');
+    const modal = document.getElementById('login-modal');
+    const preview = document.getElementById('login-avatar-preview');
+    const usernameInput = document.getElementById('login-username-input');
+    const descInput = document.getElementById('login-desc-input');
+    
+    if (preview) preview.src = state.tempLoginAvatar;
+    if (usernameInput) usernameInput.value = '';
+    if (descInput) descInput.value = '';
+    
+    if (backdrop && modal) {
+        backdrop.classList.add('active');
+        modal.classList.add('active');
+    }
+}
+
+function closeLoginModal() {
+    state.loginCallback = null;
+    const backdrop = document.getElementById('login-modal-backdrop');
+    const modal = document.getElementById('login-modal');
+    if (backdrop && modal) {
+        backdrop.classList.remove('active');
+        modal.classList.remove('active');
+    }
+}
+
+function triggerLoginAvatarSelect() {
+    const fileInput = document.getElementById('login-avatar-file');
+    if (fileInput) {
+        fileInput.click();
+    }
+}
+
+function handleLoginAvatarUpload(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        state.tempLoginAvatar = e.target.result; // Base64 data URL
+        const preview = document.getElementById('login-avatar-preview');
+        if (preview) {
+            preview.src = e.target.result;
+        }
+    };
+    reader.readAsDataURL(file);
+}
+
+function submitLoginRegister() {
+    const usernameInput = document.getElementById('login-username-input');
+    const descInput = document.getElementById('login-desc-input');
+    
+    if (!usernameInput || !usernameInput.value.trim()) {
+        alert(state.language === 'zh' ? '请输入您的昵称！' : 'Please enter your nickname!');
+        return;
+    }
+    
+    const username = usernameInput.value.trim();
+    const desc = descInput ? descInput.value.trim() : '';
+    
+    // Save to profile
+    state.isLoggedIn = true;
+    localStorage.setItem('petverse_is_logged_in', 'true');
+    
+    state.userProfile.username = username;
+    state.userProfile.avatar = state.tempLoginAvatar;
+    state.userProfile.desc = desc || (state.language === 'zh' ? '这家伙很懒，什么都没留下。' : 'No bio written.');
+    
+    saveUserProfile();
+    closeLoginModal();
+    
+    // Re-render "Me" page and other places if we are currently looking at it
+    if (state.activeTab === 'me') {
+        renderPageMe();
+    }
+    
+    alert(state.language === 'zh' ? `欢迎加入 Petverse，${username}！` : `Welcome to Petverse, ${username}!`);
+    
+    // Execute the pending action
+    if (state.loginCallback) {
+        const cb = state.loginCallback;
+        state.loginCallback = null;
+        cb();
+    }
+}
+
+function performLogOut() {
+    if (confirm(state.language === 'zh' ? '确定要退出登录吗？' : 'Are you sure you want to log out?')) {
+        state.isLoggedIn = false;
+        localStorage.removeItem('petverse_is_logged_in');
+        renderPageMe();
+        alert(state.language === 'zh' ? '已退出当前账号，进入游客浏览模式。' : 'Logged out. Entered guest mode.');
+    }
+}
+
+// Guidelines Modal
+function showGuidelinesModal() {
+    const backdrop = document.getElementById('guidelines-modal-backdrop');
+    const modal = document.getElementById('guidelines-modal');
+    if (backdrop && modal) {
+        backdrop.classList.add('active');
+        modal.classList.add('active');
+    }
+}
+
+function closeGuidelinesModal() {
+    const backdrop = document.getElementById('guidelines-modal-backdrop');
+    const modal = document.getElementById('guidelines-modal');
+    if (backdrop && modal) {
+        backdrop.classList.remove('active');
+        modal.classList.remove('active');
+    }
+}
+
+function showCommunityGuidelines() {
+    showGuidelinesModal();
+}
+
+// Trust & Safety: Report & Block
+function reportContent(type, id) {
+    alert(state.language === 'zh' 
+        ? '感谢您的监督！已收到您的举报，我们将会在24小时内对该内容进行审核并做出处理。' 
+        : 'Thank you for your report! The content has been submitted and will be reviewed within 24 hours.');
+}
+
+function confirmBlockUser(username) {
+    if (username === state.userProfile.username) {
+        alert(state.language === 'zh' ? '您不能拉黑您自己！' : 'You cannot block yourself!');
+        return;
+    }
+    const msg = state.language === 'zh' 
+        ? `确定要拉黑用户 "${username}" 吗？拉黑后您将不再看到其发布的动态和评论。` 
+        : `Are you sure you want to block user "${username}"? You will no longer see their posts and comments.`;
+    
+    if (confirm(msg)) {
+        if (!state.blockedUsers.includes(username)) {
+            state.blockedUsers.push(username);
+            localStorage.setItem('petverse_blocked_users', JSON.stringify(state.blockedUsers));
+        }
+        alert(state.language === 'zh' ? `已将 ${username} 加入黑名单` : `Blocked user ${username}`);
+        
+        // Re-render
+        renderPageHome();
+        if (state.activePostDetailId) {
+            renderPagePostDetail();
+        }
+    }
+}
+
+// Number Formatting Helper
+function formatNumber(num) {
+    if (num === undefined || num === null) return 0;
+    if (num < 1000) return num;
+    if (state.language === 'zh') {
+        if (num >= 10000) {
+            return (num / 10000).toFixed(1).replace('.0', '') + '万';
+        }
+        return (num / 1000).toFixed(1).replace('.0', '') + 'k';
+    } else {
+        return (num / 1000).toFixed(1).replace('.0', '') + 'k';
+    }
+}
+
+// Expose functions globally
+window.switchCirclesSubTab = switchCirclesSubTab;
+window.showCareDetail = showCareDetail;
+window.goBackToCareList = goBackToCareList;
+window.triggerVivariumCalculatorFromCare = triggerVivariumCalculatorFromCare;
+window.submitNewQuestionPrompt = submitNewQuestionPrompt;
+window.toggleQuestionSolved = toggleQuestionSolved;
+window.scrollToTopSmoothly = scrollToTopSmoothly;
+window.drawPetWeightChart = drawPetWeightChart;
+window.showLoginModal = showLoginModal;
+window.closeLoginModal = closeLoginModal;
+window.triggerLoginAvatarSelect = triggerLoginAvatarSelect;
+window.handleLoginAvatarUpload = handleLoginAvatarUpload;
+window.submitLoginRegister = submitLoginRegister;
+window.performLogOut = performLogOut;
+window.showGuidelinesModal = showGuidelinesModal;
+window.closeGuidelinesModal = closeGuidelinesModal;
+window.showCommunityGuidelines = showCommunityGuidelines;
+window.reportContent = reportContent;
+window.confirmBlockUser = confirmBlockUser;
+
 

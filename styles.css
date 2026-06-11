@@ -1929,12 +1929,512 @@ body {
         height: 100%;
     }
     .status-bar {
-        padding: 0 16px 4px; /* Slightly adjust padding on real mobile screens */
+        display: none !important;
     }
     .comment-drawer-backdrop, .timeline-modal-backdrop {
         border-radius: 0 !important;
     }
 }
+
+/* ==========================================
+   21. DESIGN SYSTEM SPACING & RADIUS TOKENS
+   ========================================== */
+:root {
+    --space-2: 2px;
+    --space-4: 4px;
+    --space-6: 6px;
+    --space-8: 8px;
+    --space-12: 12px;
+    --space-16: 16px;
+    --space-20: 20px;
+    --space-24: 24px;
+    --space-32: 32px;
+
+    --radius-sm: 4px;
+    --radius-md: 8px;
+    --radius-lg: 16px;
+    --radius-round: 50%;
+}
+
+/* ==========================================
+   22. BRAND LOADER SCREEN
+   ========================================== */
+#brand-loader {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: var(--bg-phone);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    transition: opacity 0.4s ease, visibility 0.4s ease;
+    border-radius: 36px; /* Match phone container border-radius */
+}
+
+@media (max-width: 768px) {
+    #brand-loader {
+        border-radius: 0 !important;
+        position: fixed;
+        width: 100vw;
+        height: 100vh;
+    }
+}
+
+#brand-loader.fade-out {
+    opacity: 0;
+    visibility: hidden;
+}
+
+.loader-content {
+    text-align: center;
+    color: var(--color-brand);
+}
+
+.loader-logo {
+    width: 50px;
+    height: 50px;
+    stroke: var(--color-brand);
+    margin-bottom: 12px;
+    animation: loaderSpin 1.8s infinite ease-in-out;
+}
+
+.loader-title {
+    font-family: var(--font-logo);
+    font-size: 22px;
+    font-weight: 800;
+    color: var(--text-primary);
+    letter-spacing: 0.5px;
+}
+
+.loader-subtitle {
+    font-size: 10px;
+    color: var(--text-secondary);
+    letter-spacing: 2px;
+    margin-top: 4px;
+}
+
+@keyframes loaderSpin {
+    0% { transform: rotate(0deg) scale(1); opacity: 0.8; }
+    50% { transform: rotate(180deg) scale(1.1); opacity: 1; }
+    100% { transform: rotate(360deg) scale(1); opacity: 0.8; }
+}
+
+/* ==========================================
+   23. INLINE SVG SUPPORT & NAV STYLE TWEAKS
+   ========================================== */
+.icon-svg {
+    width: 16px;
+    height: 16px;
+    stroke: currentColor;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    fill: none;
+    display: inline-block;
+    vertical-align: middle;
+    transition: transform var(--transition-decay), stroke var(--transition-decay);
+}
+
+.nav-icon-wrap {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    margin-bottom: 2px;
+}
+
+.nav-item-plus {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-shrink: 0;
+    margin: 0 4px;
+}
+
+.nav-icon-wrap-plus {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background-color: var(--color-brand);
+    color: #ffffff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 3px 10px rgba(45, 90, 67, 0.4);
+    transition: transform var(--transition-decay), background-color var(--transition-decay);
+}
+
+.nav-icon-wrap-plus:hover {
+    transform: scale(1.08);
+    background-color: var(--color-accent);
+}
+
+.nav-icon-wrap-plus .icon-svg {
+    width: 18px;
+    height: 18px;
+    stroke: #ffffff;
+}
+
+.bottom-nav .nav-item.active .icon-svg {
+    stroke: var(--color-accent);
+}
+
+/* ==========================================
+   24. FLOATING BACK TO TOP BUTTON
+   ========================================== */
+.back-to-top-btn {
+    position: absolute;
+    bottom: 75px;
+    right: 16px;
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    background-color: var(--color-brand);
+    color: #ffffff;
+    border: none;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+    cursor: pointer;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 200;
+    transition: opacity var(--transition-decay), transform var(--transition-decay);
+    opacity: 0;
+}
+
+.back-to-top-btn.visible {
+    display: flex;
+    opacity: 1;
+    animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+}
+
+.back-to-top-btn .icon-svg {
+    width: 14px;
+    height: 14px;
+    stroke: #ffffff;
+}
+
+/* ==========================================
+   25. SKELETON LOADERS & EMPTY STATES
+   ========================================== */
+.skeleton {
+    background: linear-gradient(90deg, var(--tag-bg) 25%, var(--border-color) 50%, var(--tag-bg) 75%);
+    background-size: 200% 100%;
+    animation: skeletonShimmer 1.5s infinite linear;
+}
+
+@keyframes skeletonShimmer {
+    0% { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+}
+
+.skeleton-card {
+    height: 140px;
+    width: 100%;
+    border-radius: var(--radius-magazine);
+    margin-bottom: 8px;
+}
+
+.skeleton-text {
+    height: 10px;
+    margin-bottom: 6px;
+    border-radius: 4px;
+}
+
+.skeleton-text-title { width: 85%; }
+.skeleton-text-body { width: 60%; }
+
+.skeleton-author {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 10px;
+}
+
+.skeleton-avatar {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+}
+
+.empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: var(--space-32) var(--space-16);
+    text-align: center;
+    color: var(--text-secondary);
+}
+
+.empty-state-icon {
+    width: 32px;
+    height: 32px;
+    stroke: var(--text-secondary);
+    margin-bottom: var(--space-12);
+    opacity: 0.6;
+}
+
+.empty-state-title {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: var(--space-4);
+}
+
+.empty-state-subtitle {
+    font-size: 10px;
+    color: var(--text-secondary);
+    margin-bottom: var(--space-12);
+}
+
+/* ==========================================
+   26. CARE ENCYCLOPAEDIA & Q&A BOARD
+   ========================================== */
+.circles-tabs-header {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 14px;
+    border-bottom: 1.5px solid var(--border-color);
+}
+
+.circles-tab-btn {
+    padding: 8px 12px;
+    border: none;
+    background: transparent;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--text-secondary);
+    cursor: pointer;
+    position: relative;
+    transition: color var(--transition-decay);
+}
+
+.circles-tab-btn.active {
+    color: var(--color-accent);
+}
+
+.circles-tab-btn.active::after {
+    content: '';
+    position: absolute;
+    bottom: -1.5px;
+    left: 0;
+    width: 100%;
+    height: 2.5px;
+    background-color: var(--color-accent);
+    border-top-left-radius: 2px;
+    border-top-right-radius: 2px;
+}
+
+.care-species-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+}
+
+.care-species-card {
+    background-color: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-magazine);
+    padding: 10px;
+    cursor: pointer;
+    transition: var(--transition-decay);
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    text-align: left;
+}
+
+.care-species-card:hover {
+    border-color: var(--color-brand);
+    transform: translateY(-1px);
+}
+
+.care-species-name {
+    font-size: 11px;
+    font-weight: 800;
+    color: var(--text-primary);
+}
+
+.care-species-difficulty {
+    font-size: 8px;
+    color: var(--color-accent);
+}
+
+.care-species-brief {
+    font-size: 9px;
+    color: var(--text-secondary);
+    line-height: 1.35;
+}
+
+/* Care Detail and Specs */
+.care-detail-header {
+    background-color: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-magazine);
+    padding: 14px;
+    margin-bottom: 12px;
+    text-align: left;
+}
+
+.care-detail-title {
+    font-family: var(--font-logo);
+    font-size: 16px;
+    font-weight: 800;
+    color: var(--color-brand);
+}
+
+.care-detail-diff-rating {
+    font-size: 9px;
+    color: var(--color-accent);
+    margin-top: 2px;
+    font-weight: 700;
+}
+
+.care-spec-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+    margin-top: 10px;
+    border-top: 1px solid var(--border-color);
+    padding-top: 8px;
+}
+
+.care-spec-item {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+}
+
+.care-spec-label {
+    font-size: 8px;
+    font-weight: 700;
+    color: var(--text-secondary);
+}
+
+.care-spec-value {
+    font-size: 10px;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+/* Q&A Board Board */
+.qa-board-section {
+    margin-top: var(--space-20);
+    text-align: left;
+}
+
+.qa-board-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.qa-question-card {
+    background-color: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-magazine);
+    padding: 10px;
+    margin-bottom: 8px;
+    cursor: pointer;
+    transition: var(--transition-decay);
+}
+
+.qa-question-card:hover {
+    border-color: var(--color-brand);
+}
+
+.qa-question-title-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 5px;
+}
+
+.qa-status-badge {
+    padding: 1px 4px;
+    border-radius: 4px;
+    font-size: 7px;
+    font-weight: 800;
+    flex-shrink: 0;
+}
+
+.qa-status-badge.unresolved {
+    background-color: var(--color-accent-light);
+    color: var(--color-accent);
+}
+
+.qa-status-badge.resolved {
+    background-color: var(--color-brand-light);
+    color: var(--color-brand);
+}
+
+.qa-question-title {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--text-primary);
+    line-height: 1.35;
+}
+
+.qa-question-meta {
+    display: flex;
+    justify-content: space-between;
+    font-size: 8px;
+    color: var(--text-secondary);
+    margin-top: 6px;
+    border-top: 1px dashed var(--border-color);
+    padding-top: 4px;
+}
+
+.qa-user-badge {
+    font-size: 7px;
+    padding: 0 3px;
+    border-radius: 3px;
+    font-weight: 700;
+    margin-left: 2px;
+}
+
+.qa-user-badge.vet {
+    background-color: #d1fae5;
+    color: #065f46;
+}
+
+.qa-user-badge.veteran {
+    background-color: #fef3c7;
+    color: #92400e;
+}
+
+/* ==========================================
+   27. PET PROFILE CHART STYLING & SETTINGS VIEW
+   ========================================== */
+.pet-chart-container {
+    background-color: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-magazine);
+    padding: 10px;
+    margin-top: 10px;
+}
+
+.pet-chart-title {
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--text-secondary);
+    margin-bottom: 6px;
+    display: flex;
+    justify-content: space-between;
+}
+
+.settings-overlay-card {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-top: 10px;
+}
+
 
 
 

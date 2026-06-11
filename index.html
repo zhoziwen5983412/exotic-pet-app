@@ -4,10 +4,43 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Petverse - 异宠星球全球生活社区</title>
+    <!-- SEO and Sharing Meta Tags -->
+    <meta name="description" content="Petverse - 记录人与异宠共同生活的全球自然杂志社区 | A global nature journal community for exotic pet lovers to record their shared life.">
+    <meta property="og:title" content="Petverse - 异宠星球全球生活社区">
+    <meta property="og:description" content="记录人与异宠共同生活的全球自然杂志社区 | A global nature journal community for exotic pet lovers to record their shared life.">
+    <meta property="og:image" content="assets/logo.png">
+    <meta property="og:type" content="website">
+    <meta name="twitter:card" content="summary_large_image">
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#121614">
     <!-- Stylesheet -->
     <link rel="stylesheet" href="styles.css">
+    <!-- Service Worker Registration -->
+    <script>
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('sw.js')
+            .then(reg => console.log('ServiceWorker registered:', reg))
+            .catch(err => console.log('ServiceWorker registration failed:', err));
+        });
+      }
+    </script>
 </head>
 <body class="theme-dark">
+
+    <!-- Brand Loading Screen -->
+    <div id="brand-loader">
+        <div class="loader-content">
+            <svg class="loader-logo" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2zm0 18a8 8 0 1 1 8-8 8 8 0 0 1-8 8z"></path>
+                <path d="M12 6a6 6 0 0 0-6 6h2a4 4 0 0 1 4-4z"></path>
+                <circle cx="12" cy="12" r="2"></circle>
+            </svg>
+            <h1 class="loader-title" data-t="appName">Petverse</h1>
+            <p class="loader-subtitle" data-t="greet">记录共同生活</p>
+        </div>
+    </div>
 
     <!-- Hidden File Inputs for Local Image Upload -->
     <input type="file" id="post-image-file" accept="image/*" style="display:none;" onchange="handlePostImageUpload(event)">
@@ -39,65 +72,131 @@
                     👋 你摸了摸 Mochi 的小脑袋！
                 </div>
 
+                <!-- Floating Back to Top Button -->
+                <button class="back-to-top-btn" id="back-to-top-btn" onclick="scrollToTopSmoothly()">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"></polyline></svg>
+                </button>
+
                 <!-- Timeline Log Modal Popup Overlay -->
                 <div class="timeline-modal-backdrop" id="timeline-modal-backdrop" onclick="closeTimelineModal()"></div>
                 <div class="timeline-modal" id="timeline-modal">
                     <div class="timeline-modal-header">
-                        <span class="timeline-modal-title" data-t="addLogTitle">添加成长日志 (Add Growth Log)</span>
+                        <span class="timeline-modal-title" data-t="addLogTitle">添加成长日志</span>
                         <span style="cursor: pointer; font-size: 12px; font-weight: bold; color: var(--text-secondary);" onclick="closeTimelineModal()">✕</span>
                     </div>
                     <div class="timeline-modal-body">
                         <div class="calc-input-group">
-                            <span class="calc-input-label">相伴天数 (Companion Day)</span>
-                            <input type="text" id="log-day-input" placeholder="例如: Day 100 (e.g. Day 100)">
+                            <span class="calc-input-label" data-t="companionDayLabel">相伴天数</span>
+                            <input type="text" id="log-day-input" placeholder="例如: Day 100">
                         </div>
                         <div class="calc-input-group">
-                            <span class="calc-input-label">大事记标题 (Title)</span>
-                            <input type="text" id="log-title-input" placeholder="例如: 第一次主动进食 (e.g. First Feed)">
+                            <span class="calc-input-label" data-t="logTitleLabel">大事记标题</span>
+                            <input type="text" id="log-title-input" placeholder="例如: 第一次主动进食">
                         </div>
                         <div class="calc-input-group">
-                            <span class="calc-input-label">日志内容描述 (Description)</span>
-                            <textarea id="log-desc-input" placeholder="写下发生的事情... (Write down the story...)"></textarea>
+                            <span class="calc-input-label" data-t="logDescLabel">日志内容描述</span>
+                            <textarea id="log-desc-input" placeholder="写下发生的事情..."></textarea>
                         </div>
                     </div>
                     <div class="timeline-modal-footer">
-                        <button class="join-btn" onclick="closeTimelineModal()" style="background:transparent; border:1px solid var(--border-color); color:var(--text-secondary); padding: 5px 12px; border-radius:12px; font-size:10px;">取消</button>
-                        <button class="join-btn" onclick="submitNewTimelineLog()" style="padding: 5px 12px; border-radius:12px; font-size:10px;">提交</button>
+                        <button class="join-btn" onclick="closeTimelineModal()" style="background:transparent; border:1px solid var(--border-color); color:var(--text-secondary); padding: 5px 12px; border-radius:12px; font-size:10px;" data-t="cancelBtn">取消</button>
+                        <button class="join-btn" onclick="submitNewTimelineLog()" style="padding: 5px 12px; border-radius:12px; font-size:10px;" data-t="submitBtn">提交</button>
                     </div>
                 </div>
+
+                <!-- Login Modal Overlay -->
+                <div class="timeline-modal-backdrop" id="login-modal-backdrop" onclick="closeLoginModal()"></div>
+                <div class="timeline-modal" id="login-modal">
+                    <div class="timeline-modal-header">
+                        <span class="timeline-modal-title" data-t="loginTitle">加入 Petverse 社区</span>
+                        <span style="cursor: pointer; font-size: 12px; font-weight: bold; color: var(--text-secondary);" onclick="closeLoginModal()">✕</span>
+                    </div>
+                    <div class="timeline-modal-body">
+                        <div style="text-align: center; margin-bottom: 6px;">
+                            <div style="position: relative; display: inline-block; cursor: pointer; margin: 0 auto;" onclick="triggerLoginAvatarSelect()">
+                                <img id="login-avatar-preview" src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&w=150&q=80" style="width: 50px; height: 50px; border-radius: 50%; border: 1.5px solid var(--color-brand); object-fit: cover; display: block;">
+                                <div style="position: absolute; bottom: 0; right: 0; background: var(--color-brand); color: #fff; border-radius: 50%; width: 16px; height: 16px; display: flex; align-items: center; justify-content: center; font-size: 8px; border: 1px solid var(--bg-secondary);">📷</div>
+                            </div>
+                        </div>
+                        <input type="file" id="login-avatar-file" accept="image/*" style="display:none;" onchange="handleLoginAvatarUpload(event)">
+                        
+                        <div class="calc-input-group">
+                            <span class="calc-input-label" data-t="loginUsernameLabel">个性昵称</span>
+                            <input type="text" id="login-username-input" placeholder="例如: 守宫玩家">
+                        </div>
+                        <div class="calc-input-group">
+                            <span class="calc-input-label" data-t="loginDescLabel">个人简介</span>
+                            <input type="text" id="login-desc-input" placeholder="介绍一下你自己...">
+                        </div>
+                    </div>
+                    <div class="timeline-modal-footer">
+                        <button class="join-btn" onclick="closeLoginModal()" style="background:transparent; border:1px solid var(--border-color); color:var(--text-secondary); padding: 5px 12px; border-radius:12px; font-size:10px;" data-t="cancelBtn">取消</button>
+                        <button class="join-btn" onclick="submitLoginRegister()" style="padding: 5px 12px; border-radius:12px; font-size:10px;" data-t="loginSubmitBtn">立即加入</button>
+                    </div>
+                </div>
+
+                <!-- Community Guidelines Modal Overlay -->
+                <div class="timeline-modal-backdrop" id="guidelines-modal-backdrop" onclick="closeGuidelinesModal()"></div>
+                <div class="timeline-modal" id="guidelines-modal" style="width: 90%; max-height: 80%;">
+                    <div class="timeline-modal-header">
+                        <span class="timeline-modal-title" style="color: var(--color-accent);" data-t="guidelinesTitle">Petverse 社区公约</span>
+                        <span style="cursor: pointer; font-size: 12px; font-weight: bold; color: var(--text-secondary);" onclick="closeGuidelinesModal()">✕</span>
+                    </div>
+                    <div class="timeline-modal-body" style="font-size: 9px; line-height: 1.5; color: var(--text-primary); text-align: left; max-height: 250px; overflow-y: auto; padding-right: 4px;">
+                        <h4 style="margin: 0 0 4px 0; font-size: 10px; color: var(--color-brand);" data-t="guidelinesHeading1">1. 尊重与善意</h4>
+                        <p style="margin: 0 0 8px 0; color: var(--text-secondary);" data-t="guidelinesDesc1">在交流异宠饲养心得时，请保持礼貌与客观。严禁侮辱、谩骂、人身攻击或恶意引战。</p>
+                        
+                        <h4 style="margin: 0 0 4px 0; font-size: 10px; color: var(--color-brand);" data-t="guidelinesHeading2">2. 合法与负责任饲养</h4>
+                        <p style="margin: 0 0 8px 0; color: var(--text-secondary);" data-t="guidelinesDesc2">倡导科学与合规饲养。严禁宣传、展示、交易任何法律法规禁止野生动物或濒危保护动物，杜绝野捕与非法倒卖。</p>
+                        
+                        <h4 style="margin: 0 0 4px 0; font-size: 10px; color: var(--color-brand);" data-t="guidelinesHeading3">3. 严禁放生外来物种</h4>
+                        <p style="margin: 0 0 8px 0; color: var(--text-secondary);" data-t="guidelinesDesc3">外来异宠在野外可能会破坏生态平衡，甚至引发安全隐患。严禁一切不负责任的弃养、放生或散养行为。</p>
+                        
+                        <h4 style="margin: 0 0 4px 0; font-size: 10px; color: var(--color-brand);" data-t="guidelinesHeading4">4. 真实与原创</h4>
+                        <p style="margin: 0; color: var(--text-secondary);" data-t="guidelinesDesc4">鼓励分享真实的日常瞬间和成长记录，禁止发布虚假诱导信息或剽窃他人摄影作品。</p>
+                    </div>
+                    <div class="timeline-modal-footer" style="margin-top: 6px;">
+                        <button class="join-btn" onclick="closeGuidelinesModal()" style="padding: 5px 16px; border-radius:12px; font-size:10px;" data-t="guidelinesAgreeBtn">我已阅读并同意</button>
+                    </div>
+                </div>
+
 
                 <!-- Comments slide-up drawer overlay -->
                 <div class="comment-drawer-backdrop" id="comment-backdrop" onclick="closeCommentDrawer()"></div>
                 <div class="comment-drawer" id="comment-drawer">
                     <div class="comment-drawer-header">
-                        <span id="comment-drawer-title" style="font-weight: 700; font-size: 12px; font-family: var(--font-logo);">评论 (Comments)</span>
+                        <span id="comment-drawer-title" style="font-weight: 700; font-size: 12px; font-family: var(--font-logo);" data-t="comment">评论</span>
                         <span style="cursor: pointer; font-size: 12px; font-weight: bold; color: var(--text-secondary);" onclick="closeCommentDrawer()">✕</span>
                     </div>
                     <div class="comment-drawer-list" id="comment-drawer-list-container">
                         <!-- Loaded by JS -->
                     </div>
                     <div class="comment-drawer-input-row">
-                        <input type="text" id="new-comment-input-box" placeholder="说点什么... (Add a comment...)" onkeydown="if(event.key==='Enter') submitNewComment()">
-                        <button class="join-btn" onclick="submitNewComment()" style="padding: 5px 10px; font-size: 10px; border-radius:12px; flex-shrink:0;">发送</button>
+                        <input type="text" id="new-comment-input-box" data-t-placeholder="placeholderComment" placeholder="说点什么..." onkeydown="if(event.key==='Enter') submitNewComment()">
+                        <button class="join-btn" onclick="submitNewComment()" style="padding: 5px 10px; font-size: 10px; border-radius:12px; flex-shrink:0;" data-t="sendBtn">发送</button>
                     </div>
                 </div>
 
                 <!-- App Header -->
                 <header class="app-header">
-                    <!-- Top Row: Scan, Search bar, Bell icon -->
-                    <div class="header-top" style="gap: 10px;">
+                    <!-- Top Row: Scan, Search bar, Bell icon, Theme Toggle -->
+                    <div class="header-top" style="gap: 8px; align-items: center;">
                         <div class="action-icon-btn scan-outline-btn" onclick="alert('扫一扫功能开发中... / Scan is coming soon!')">
-                            <span style="font-size: 14px; font-weight: bold; border: 1.5px solid var(--text-primary); border-radius: 4px; padding: 1px 4px; letter-spacing: 0;">📸</span>
+                            <svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg>
                         </div>
                         
                         <div class="search-box-magazine" style="flex: 1; display: flex; align-items: center; gap: 6px; background-color: var(--tag-bg); padding: 4px 12px; border-radius: 18px; border: 1px solid transparent;">
-                            <span>🔍</span>
+                            <svg class="icon-svg" style="width: 12px; height: 12px; color: var(--text-secondary);" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
                             <input type="text" id="search-input-box" data-t-placeholder="placeholderSearch" placeholder="搜品种、圈子、帖子、用户..." style="width: 100%; background: transparent; border: none; outline: none; font-size: 11px; color: var(--text-primary);" oninput="handleSearchInput(event)">
                             <span id="search-clear-btn" style="cursor: pointer; font-size: 10px; display: none; color: var(--text-secondary);" onclick="clearSearchInput()">✕</span>
                         </div>
 
-                        <div class="notification-bell" onclick="alert('消息通知暂无新消息 / No notifications')">
-                            <span>🔔</span>
+                        <div class="theme-toggle-header-btn" onclick="toggleThemeCtrl()" style="cursor: pointer; display: flex; align-items: center; justify-content: center; width: 26px; height: 26px; color: var(--text-secondary); border-radius: 50%; background-color: var(--tag-bg);">
+                            <svg id="theme-toggle-svg" class="icon-svg" style="width: 14px; height: 14px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+                        </div>
+
+                        <div class="notification-bell" onclick="alert('消息通知暂无新消息 / No notifications')" style="background-color: var(--tag-bg); width: 26px; height: 26px; display: flex; align-items: center; justify-content: center; border-radius: 50%;">
+                            <svg class="icon-svg" style="width: 14px; height: 14px; color: var(--text-secondary);" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
                             <div class="bell-badge"></div>
                         </div>
                     </div>
@@ -156,23 +255,32 @@
                 <!-- Bottom Navigation Bar (Home, Circles, +, Messages, Me) -->
                 <nav class="bottom-nav">
                     <div class="nav-item active" data-tab="home">
-                        <span class="nav-icon">🏠</span>
+                        <div class="nav-icon-wrap">
+                            <svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+                        </div>
                         <span data-t="tabHome">首页</span>
                     </div>
                     <div class="nav-item" data-tab="circles">
-                        <span class="nav-icon">🌐</span>
-                        <span data-t="tabCircles">圈子</span>
+                        <div class="nav-icon-wrap">
+                            <svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg>
+                        </div>
+                        <span data-t="tabCircles">百科</span>
                     </div>
-                    <div class="nav-item" data-tab="record">
-                        <span class="nav-icon" style="font-size: 20px; font-weight: bold; margin-bottom: 0;">+</span>
-                        <span data-t="recordTab">+</span>
+                    <div class="nav-item nav-item-plus" data-tab="record">
+                        <div class="nav-icon-wrap-plus">
+                            <svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                        </div>
                     </div>
                     <div class="nav-item" data-tab="messages">
-                        <span class="nav-icon">📩</span>
+                        <div class="nav-icon-wrap">
+                            <svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+                        </div>
                         <span data-t="messagesTab">消息</span>
                     </div>
                     <div class="nav-item" data-tab="me">
-                        <span class="nav-icon">👤</span>
+                        <div class="nav-icon-wrap">
+                            <svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+                        </div>
                         <span data-t="meTab">我</span>
                     </div>
                 </nav>
@@ -181,29 +289,17 @@
         </div>
 
         <!-- ==========================================
-             RIGHT: CONTROL PANEL & DESIGN STUDY
+             RIGHT: CONTROL PANEL & DESIGN STUDY (Visual assets for desktop)
              ========================================== -->
         <div class="control-panel">
             <h1 class="control-title">PETVERSE / 异宠故事</h1>
-            <p class="control-subtitle">
+            <p class="control-subtitle" data-t="greet">
                 记录人与异宠共同生活的全球自然杂志社区
             </p>
 
-            <!-- Preferences Settings -->
-            <div class="control-group">
-                <span class="control-label">系统偏好 / Preferences</span>
-                <div class="btn-row">
-                    <button class="ctrl-btn ctrl-lang-btn active" id="ctrl-lang-zh" onclick="changeLanguage('zh')">🇨🇳 简体中文</button>
-                    <button class="ctrl-btn ctrl-lang-btn" id="ctrl-lang-en" onclick="changeLanguage('en')">🇺🇸 English</button>
-                    
-                    <button class="ctrl-btn ctrl-theme-btn active" id="ctrl-theme-theme-dark" onclick="changeTheme('theme-dark')">🌙 深岩灰暗色</button>
-                    <button class="ctrl-btn ctrl-theme-btn" id="ctrl-theme-theme-light" onclick="changeTheme('theme-light')">☀️ 暖白陶土日间</button>
-                </div>
-            </div>
-
             <!-- "World right now" Map simulation entry -->
             <div class="control-group">
-                <span class="control-label" data-t="mapTitle">此刻的世界 (World Right Now Map)</span>
+                <span class="control-label" data-t="mapTitle">此刻的世界</span>
                 <div class="map-discovery-box">
                     <div class="map-viewport">
                         <!-- Markers simulation -->
@@ -223,7 +319,7 @@
             </div>
 
             <!-- Staggered topic suggestions slider -->
-            <div class="control-group">
+            <div class="control-group" style="margin-bottom: 0;">
                 <span class="control-label" data-t="topicTitle">本周全球讨论话题</span>
                 <div class="topic-slide-wrap">
                     <div class="topic-slide-card" onclick="alert('本周话题：#异宠最奇怪的睡姿')">
@@ -236,17 +332,8 @@
                     </div>
                 </div>
             </div>
-
-            <!-- Design highlights -->
-            <div class="control-group" style="margin-bottom: 0;">
-                <span class="control-label">重构设计理念说明 / Design Philosophy</span>
-                <div class="market-highlight-card" style="margin-top:0; font-size:11px;">
-                    <strong>📖 数字自然杂志感：</strong> 取消大横幅与快捷功能块，首屏聚焦于高品质的用户摄影图与异形“生态观察窗”故事胶囊。配色方案在浅色下为复古陶土暖白，深色下为低调深岩灰，排版留白大方。<br><br>
-                    <strong>🦖 宠物生命时间轴：</strong> 每一只异宠都配有<b>独立成长主页</b>而非冰冷的饲养参数表。支持“摸摸它（带有弹窗动画）”、“同款经历”和“单独关注这只异宠”，凸显陪伴温度。<br><br>
-                    <strong>🌐 全球无界社交：</strong> 动态底部带有经纬度与地点签，点击地图可检索不同国家的动态，支持跨语言评论翻译。
-                </div>
-            </div>
         </div>
+
 
     </div>
 

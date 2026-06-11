@@ -1,0 +1,16 @@
+{
+  "short_name": "Petverse",
+  "name": "Petverse - 异宠星球全球生活社区",
+  "icons": [
+    {
+      "src": "assets/logo.png",
+      "type": "image/png",
+      "sizes": "512x512"
+    }
+  ],
+  "start_url": "/index.html",
+  "background_color": "#121614",
+  "theme_color": "#121614",
+  "display": "standalone",
+  "orientation": "portrait"
+}
