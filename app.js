@@ -34,66 +34,51 @@ const state = {
     questions: []
 };
 
-// Fallback datasets (In case backend server.js is offline)
 const fallbackData = {
     language: 'zh',
     theme: 'theme-dark',
     pets: [
         {
-            id: 'pet_mochi',
-            name: 'Mochi (Offline)',
-            species: '睫角守宫 (Crested Gecko)',
-            speciesKey: 'crested_gecko',
-            gender: '♀',
-            age: '1.5年',
-            ageEn: '1.5 yrs',
-            gene: '黄莉莉皮皮 (Yellow Lily White)',
-            image: 'assets/pet_gecko.png',
-            companionDays: 512,
-            location: "日本东京 (Tokyo, Japan)",
-            locationKey: "tokyo",
-            coordinates: "35.6762° N, 139.6503° E",
-            followersCount: 4250,
-            ownerName: "Kenji_T",
-            personality: "温顺且超级贪吃，喜欢在我手心睡觉。",
-            personalityEn: "Gentle and very greedy, loves sleeping in my palm.",
-            story: "Mochi是我在东京宠物展第一眼相中的小家伙。从刚出生只有几克重，到现在能稳稳吸附在窗台，它见证了我每一个熬夜做设计的夜晚。",
-            storyEn: "Mochi is the little guy I picked at the Tokyo Pet Show. From just a few grams to now firmly holding on the window sill, she witnessed all my late-night design work.",
-            timeline: [
-                { id: "t1", day: "Day 1", title: "初次见面", titleEn: "First Meet", desc: "坐着JR线把它带回了家，只有3克重，小小的像颗花生。", "descEn": "Brought her home via JR line. Only 3g, tiny like a peanut." }
-            ]
+            id: 'pet_mochi', name: 'Mochi', species: '睫角守宫 (Crested Gecko)', speciesKey: 'crested_gecko',
+            gender: '♀', age: '1.5年', ageEn: '1.5 yrs', gene: '黄莉莉皮皮 (Yellow Lily White)',
+            image: 'assets/pet_gecko.png', companionDays: 600,
+            location: "日本东京 (Tokyo, Japan)", locationKey: "tokyo", coordinates: "35.6762° N, 139.6503° E",
+            followersCount: 4250, ownerName: "Kenji_T",
+            personality: "温顺且超级贪吃，喜欢在我手心睡觉。", personalityEn: "Gentle and very greedy, loves sleeping in my palm.",
+            story: "Mochi是我在东京宠物展第一眼相中的小家伙。", storyEn: "Mochi is the little guy I picked at the Tokyo Pet Show.",
+            timeline: [{ id: "t1", day: "Day 1", title: "初次见面", titleEn: "First Meet", desc: "只有3克重。", descEn: "Only 3g." }]
+        },
+        {
+            id: 'pet_zuzu', name: 'Zuzu', species: '高冠变色龙 (Veiled Chameleon)', speciesKey: 'veiled_chameleon',
+            gender: '♂', age: '9个月', ageEn: '9 mos', gene: '高黄血统高冠 (High-Yellow Line)',
+            image: 'assets/pet_chameleon.png', companionDays: 210,
+            location: "巴西圣保罗 (Sao Paulo, Brazil)", locationKey: "saopaulo", coordinates: "23.5505° S, 46.6333° W",
+            followersCount: 1890, ownerName: "Carlos_S",
+            personality: "傲娇且警戒心强，但晒太阳时会变成明艳的黄色。", personalityEn: "Proud and alert, but turns vibrant yellow when sunbathing.",
+            story: "Zuzu是在圣保罗的爬友聚会上交换来的。", storyEn: "Traded Zuzu at a Sao Paulo reptile meet.",
+            timeline: [{ id: "t4", day: "Day 1", title: "定居森林缸", titleEn: "New Forest Home", desc: "住进了定制网箱。", descEn: "Moved into custom mesh enclosure." }]
         }
     ],
     posts: [
-        {
-            id: 'p1',
-            petId: 'pet_mochi',
-            username: 'Kenji_T',
-            avatar: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=100&q=80',
-            location: '日本东京 (Tokyo, Japan)',
-            coordinates: '35.6762° N, 139.6503° E',
-            time: '2小时前',
-            timeEn: '2 hrs ago',
-            tag: '成长日记',
-            tagEn: 'Growth Log',
-            content: '【离线模式】本地服务器未启动。请在项目目录下执行 cmd /c node server.js 开启数据库服务以保存修改！',
-            contentEn: '[Offline Mode] Local mock backend not running. Execute node server.js in terminal to persist changes!',
-            image: 'assets/pet_gecko.png',
-            layout: 'single-photo',
-            curiousCount: 248,
-            sharedCount: 42,
-            commentCount: 36,
-            saveCount: 89,
-            curious: false,
-            shared: false,
-            saved: false,
-            commentsList: [
-                { name: "Anna (Germany)", text: "Server is offline, but sandbox mode is fully operational!" }
-            ]
-        }
+        { id: 'p1', petId: 'pet_mochi', username: 'Kenji_T', avatar: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=100&q=80', location: '日本东京 (Tokyo, Japan)', coordinates: '35.6762° N, 139.6503° E', time: '2小时前', timeEn: '2 hrs ago', tag: '成长日记', tagEn: 'Growth Log', content: 'Mochi 今天第一次主动爬上我的手！勺喂了它最喜欢的无花果味果泥，舔得干干净净。手心上那种凉丝丝、软绵绵的小爪子触感，简直太治愈了！', contentEn: 'Mochi climbed onto my hand voluntarily for the first time today! The cool, soft touch of her claws on my palm is pure therapy!', image: 'assets/pet_gecko.png', layout: 'single-photo', curiousCount: 1248, sharedCount: 342, commentCount: 136, saveCount: 489, curious: false, shared: false, saved: false, commentsList: [{ name: 'Anna (Germany)', text: 'Congrats! My crested gecko still runs away!' }] },
+        { id: 'p2', petId: 'pet_zuzu', username: 'Carlos_S', avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=100&q=80', location: '巴西圣保罗 (Sao Paulo, Brazil)', coordinates: '23.5505° S, 46.6333° W', time: '5小时前', timeEn: '5 hrs ago', tag: '生活瞬间', tagEn: 'Life Moment', content: '享受热带阳光的 Zuzu。体色瞬间从暗绿转化成了极其明亮斑斓的黄色！真是一只行走的自然调色盘。', contentEn: 'Zuzu enjoying tropical sun. His skin color shifted from dark green to bright yellow instantly! A walking natural palette.', image: 'assets/pet_chameleon.png', layout: 'single-photo', curiousCount: 892, sharedCount: 118, commentCount: 67, saveCount: 242, curious: false, shared: false, saved: false, commentsList: [{ name: 'Lucas (USA)', text: 'Beautiful! Sunlight is the best UV for chameleons.' }] },
+        { id: 'p3', petId: null, username: 'Sophia_Melb', avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=100&q=80', location: '澳大利亚悉尼 (Sydney, Australia)', coordinates: '33.8688° S, 151.2093° E', time: '1天前', timeEn: '1 day ago', tag: '求助提问', tagEn: 'Help', content: '这是我和蓝舌石龙子共同生活的第100天！有人知道悉尼哪里有靠谱的异宠体检医院吗？', contentEn: '100 days with my blue tongue skink! Anyone knows a reliable exotic vet in Sydney?', image: 'assets/post_blue_tongue_skink.png', layout: 'single-photo', curiousCount: 567, sharedCount: 89, commentCount: 45, saveCount: 156, curious: false, shared: false, saved: false, commentsList: [{ name: 'AussieKeeper', text: 'Try the Exotic Vet clinic in Waterloo!' }] },
+        { id: 'p4', petId: null, username: 'Hans_Berlin', avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=100&q=80', location: '德国柏林 (Berlin, Germany)', coordinates: '52.5200° N, 13.4050° E', time: '3小时前', timeEn: '3 hrs ago', tag: '造景分享', tagEn: 'Vivarium Art', content: '花了三个月打造的热带雨林生态缸终于完成了！植物已经完全扎根，小瀑布流水声超治愈🌿', contentEn: 'My 3-month tropical rainforest vivarium project is finally done! Plants are fully rooted, the waterfall is so soothing 🌿', image: 'assets/post_vivarium.png', layout: 'single-photo', curiousCount: 2341, sharedCount: 567, commentCount: 234, saveCount: 891, curious: false, shared: false, saved: false, commentsList: [{ name: 'PlantDad (UK)', text: 'This is absolutely STUNNING!' }] },
+        { id: 'p5', petId: null, username: 'Jessica_LA', avatar: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?auto=format&fit=crop&w=100&q=80', location: '美国洛杉矶 (Los Angeles, USA)', coordinates: '34.0522° N, 118.2437° W', time: '6小时前', timeEn: '6 hrs ago', tag: '日常分享', tagEn: 'Daily Story', content: '我家球蟒 Noodle 今天终于完成了蜕皮！完整的一条蛇蜕，超有成就感🐍', contentEn: 'My ball python Noodle finally completed shedding today! A perfect full shed, so satisfying 🐍', image: 'assets/post_ball_python.png', layout: 'single-photo', curiousCount: 1056, sharedCount: 234, commentCount: 98, saveCount: 345, curious: false, shared: false, saved: false, commentsList: [{ name: 'SnakeWhisperer (Canada)', text: 'Perfect shed! What humidity setup do you use?' }] },
+        { id: 'p6', petId: null, username: 'Somchai_BKK', avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&w=100&q=80', location: '泰国曼谷 (Bangkok, Thailand)', coordinates: '13.7563° N, 100.5018° E', time: '4小时前', timeEn: '4 hrs ago', tag: '成长日记', tagEn: 'Growth Log', content: '曼谷的乍都乍周末市场又来了好多新品种的豹纹守宫！入手了一只超漂亮的暴风雪基因🏠', contentEn: 'So many new leopard gecko morphs at Chatuchak weekend market! Got a stunning Blizzard morph 🏠', image: 'assets/post_leopard_gecko.png', layout: 'single-photo', curiousCount: 1523, sharedCount: 289, commentCount: 156, saveCount: 478, curious: false, shared: false, saved: false, commentsList: [{ name: 'GeckoKing (Thailand)', text: 'Chatuchak is heaven for gecko lovers!' }] },
+        { id: 'p7', petId: null, username: 'Emma_London', avatar: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=100&q=80', location: '英国伦敦 (London, UK)', coordinates: '51.5074° N, 0.1278° W', time: '8小时前', timeEn: '8 hrs ago', tag: '知识科普', tagEn: 'Education', content: '分享一下我的墨西哥红膝蜘蛛 Rosie 🕷️ 性格超级温柔！打破偏见，节肢动物也可以很可爱！', contentEn: 'Meet my Mexican red knee tarantula Rosie 🕷️ Super gentle! Breaking stereotypes - arthropods can be adorable!', image: 'assets/post_tarantula.png', layout: 'single-photo', curiousCount: 789, sharedCount: 167, commentCount: 89, saveCount: 234, curious: false, shared: false, saved: false, commentsList: [{ name: 'SpiderFan (USA)', text: 'Red knees are the gateway to arachnid keeping!' }] },
+        { id: 'p8', petId: null, username: 'Miguel_CDMX', avatar: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&w=100&q=80', location: '墨西哥城 (Mexico City, Mexico)', coordinates: '19.4326° N, 99.1332° W', time: '10小时前', timeEn: '10 hrs ago', tag: '生活瞬间', tagEn: 'Life Moment', content: '我家的角蛙 Gordo 又把自己埋进了椰土里，只露出两只大眼睛瞪着我看😂 角蛙真的是最有表情包潜力的宠物！', contentEn: 'My Pacman frog Gordo buried himself again, just two big eyes staring at me 😂 Pacman frogs are the ultimate meme pets!', image: 'assets/post_pacman_frog.png', layout: 'single-photo', curiousCount: 1876, sharedCount: 456, commentCount: 178, saveCount: 567, curious: false, shared: false, saved: false, commentsList: [{ name: 'FrogLife (Mexico)', text: 'Gordo es hermoso! Living blobs of happiness 🐸' }] },
+        { id: 'p9', petId: null, username: 'MinJi_Seoul', avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=100&q=80', location: '韩国首尔 (Seoul, South Korea)', coordinates: '37.5665° N, 126.9780° E', time: '12小时前', timeEn: '12 hrs ago', tag: '养护攻略', tagEn: 'Care Guide', content: '鬃狮蜥造景终于搞定！温度梯度从晒点42°C到冷区25°C，UVB用的T5灯管🦎☀️', contentEn: 'Bearded dragon desert scape done! Temp gradient 42°C basking to 25°C cool side, T5 UVB tube 🦎☀️', image: 'assets/post_bearded_dragon.png', layout: 'single-photo', curiousCount: 934, sharedCount: 345, commentCount: 123, saveCount: 678, curious: false, shared: false, saved: false, commentsList: [{ name: 'BeardieKing (Australia)', text: 'Perfect temperature gradient! T5 is the way to go.' }] },
+        { id: 'p10', petId: null, username: '小野爬爬', avatar: 'https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=100&q=80', location: '中国上海 (Shanghai, China)', coordinates: '31.2304° N, 121.4737° E', time: '30分钟前', timeEn: '30 min ago', tag: '开箱测评', tagEn: 'Unboxing', content: '上海爬宠展带回来的战利品！入手了一只超级漂亮的橘色睫角守宫，火焰基因🎨 异宠圈真的越来越热了！', contentEn: 'Haul from Shanghai Reptile Expo! Got a gorgeous orange crested gecko flame morph 🎨 The exotic pet community is really growing!', image: 'assets/pet_gecko.png', layout: 'single-photo', curiousCount: 2134, sharedCount: 567, commentCount: 234, saveCount: 789, curious: false, shared: false, saved: false, commentsList: [{ name: 'Kenji_T (Japan)', text: 'Fire morphs are my favorite!' }] },
+        { id: 'p11', petId: null, username: 'Yuki_Osaka', avatar: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=100&q=80', location: '日本大阪 (Osaka, Japan)', coordinates: '34.6937° N, 135.5023° E', time: '7小时前', timeEn: '7 hrs ago', tag: '生活瞬间', tagEn: 'Life Moment', content: '大阪的爬虫カフェ新开了一家！可以一边喝抹茶拿铁一边摸豹纹守宫和球蟒🍵🐍', contentEn: 'New reptile cafe in Osaka! Sipping matcha latte while handling leopard geckos and ball pythons 🍵🐍', image: 'assets/post_ball_python.png', layout: 'single-photo', curiousCount: 1456, sharedCount: 378, commentCount: 145, saveCount: 523, curious: false, shared: false, saved: false, commentsList: [{ name: 'MinJi_Seoul (Korea)', text: 'Japan reptile cafes are amazing!' }] },
+        { id: 'p12', petId: null, username: 'Maple_Toronto', avatar: 'https://images.unsplash.com/photo-1522075469751-3a6694fb2f61?auto=format&fit=crop&w=100&q=80', location: '加拿大多伦多 (Toronto, Canada)', coordinates: '43.6532° N, 79.3832° W', time: '1天前', timeEn: '1 day ago', tag: '日常分享', tagEn: 'Daily Story', content: '多伦多的冬天对养爬虫来说真的是考验！分享一下我的加温方案：陶瓷加热灯+温控器❄️🔥', contentEn: 'Toronto winters are tough for reptile keepers! My heating setup: ceramic heat emitter + thermostat ❄️🔥', image: 'assets/pet_snake.png', layout: 'single-photo', curiousCount: 678, sharedCount: 234, commentCount: 89, saveCount: 456, curious: false, shared: false, saved: false, commentsList: [{ name: 'Hans_Berlin (Germany)', text: 'Same struggle in Berlin! Ceramic heaters are lifesavers.' }] }
     ],
     hotTopics: [
-        { id: 'ht1', title: '服务器未启动，请运行 node server.js', titleEn: 'Server offline, please run node server.js' }
+        { id: 'ht1', title: '异宠最奇怪的睡姿大赏', titleEn: 'Exotic pet weirdest sleeping positions' },
+        { id: 'ht2', title: '你的生态缸里养了什么植物？', titleEn: 'What plants in your bioactive vivarium?' },
+        { id: 'ht3', title: '南北半球冬季控温保姆级讨论', titleEn: 'Global winter temperature control tips' },
+        { id: 'ht4', title: '2026全球爬宠展时间表汇总', titleEn: '2026 Global Reptile Expo schedule' },
+        { id: 'ht5', title: '新手入坑异宠第一只该选什么？', titleEn: 'What should be your first exotic pet?' }
     ]
 };
 
