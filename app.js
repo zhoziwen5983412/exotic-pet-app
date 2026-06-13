@@ -557,17 +557,35 @@ function renderPageHome() {
             `;
         }
 
-        // Eco-capsules list (故事胶囊)
-        const storyCapsulesHtml = state.pets.map(pet => `
-            <div class="story-capsule" onclick="showPetProfile('${pet.id}')">
-                <div class="observation-window">
-                    <div class="window-inner">
-                        <img src="${pet.image}" alt="capsule pic" loading="lazy">
-                    </div>
+        // Trending news data (热点资讯)
+        const trendingNews = [
+            { id: 'tn1', icon: '🔥', tag: '热门', tagEn: 'Hot', title: '蓝舌石龙子繁殖季来临，新手必读指南', titleEn: 'Blue-tongue skink breeding season guide', views: '2.3w', color: '#E87A51' },
+            { id: 'tn2', icon: '📢', tag: '公告', tagEn: 'News', title: '多地发布异宠饲养新规，速来了解', titleEn: 'New exotic pet regulations update', views: '1.8w', color: '#5B8DEF' },
+            { id: 'tn3', icon: '🏆', tag: '精选', tagEn: 'Pick', title: '全球最美生态缸造景大赛获奖名单', titleEn: 'Best bioactive vivarium awards', views: '3.1w', color: '#2D5A43' },
+            { id: 'tn4', icon: '💡', tag: '科普', tagEn: 'Edu', title: '守宫蜕皮困难？5个急救技巧', titleEn: '5 tips for gecko shedding problems', views: '1.2w', color: '#C06DC7' },
+        ];
+
+        // Trending news cards
+        const trendingNewsHtml = trendingNews.map(news => `
+            <div class="trending-news-card" onclick="selectHotTopic('ht1')">
+                <div class="trending-news-tag" style="background: ${news.color}20; color: ${news.color};">
+                    <span>${news.icon}</span>
+                    <span>${state.language === 'zh' ? news.tag : news.tagEn}</span>
                 </div>
-                <span class="story-title">${pet.name}</span>
+                <p class="trending-news-title">${state.language === 'zh' ? news.title : news.titleEn}</p>
+                <div class="trending-news-meta">
+                    <span>👁 ${news.views}</span>
+                </div>
             </div>
         `).join('');
+
+        const storyCapsulesHtml = `
+            <div class="trending-section">
+                <div class="trending-news-scroll">
+                    ${trendingNewsHtml}
+                </div>
+            </div>
+        `;
 
         // Divide posts into two columns (odd/even index) to create waterfall
         let leftColPosts = [];
@@ -629,11 +647,7 @@ function renderPageHome() {
         container.innerHTML = `
             ${mapWidgetHtml}
 
-            <div class="stories-container" style="width: 100%;">
-                <div class="stories-list">
-                    ${storyCapsulesHtml}
-                </div>
-            </div>
+            ${storyCapsulesHtml}
 
             ${filterNoticeHtml}
 
