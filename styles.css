@@ -116,6 +116,21 @@ body {
     flex-direction: column;
     transition: var(--transition-decay);
 }
+.phone-screen::after {
+    content: '';
+    position: absolute;
+    bottom: 65px;
+    right: 8px;
+    width: 120px;
+    height: 120px;
+    background-image: url('assets/mascot_gecko.png');
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+    opacity: 0.18;
+    pointer-events: none;
+    z-index: 999;
+}
 
 /* Bezel and Status */
 .phone-notch {
@@ -287,22 +302,6 @@ body {
     overflow-y: auto;
     scrollbar-width: none;
     position: relative;
-}
-.screen-body::after {
-    content: '';
-    position: fixed;
-    bottom: 70px;
-    right: 10px;
-    width: 140px;
-    height: 140px;
-    background-image: url('assets/mascot_gecko.png');
-    background-size: contain;
-    background-repeat: no-repeat;
-    background-position: center;
-    opacity: 0.08;
-    pointer-events: none;
-    z-index: 0;
-    filter: saturate(0.6);
 }
 .screen-body::-webkit-scrollbar { display: none; }
 
@@ -2029,6 +2028,13 @@ body {
         border-radius: 0;
         width: 100%;
         height: 100%;
+    }
+    .phone-screen::after {
+        bottom: 60px;
+        right: 12px;
+        width: 100px;
+        height: 100px;
+        opacity: 0.15;
     }
     .status-bar {
         display: none !important;
