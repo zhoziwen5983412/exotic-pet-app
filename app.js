@@ -584,17 +584,14 @@ function renderPageHome() {
                     <div class="magazine-feed-card" onclick="showPostDetail('${post.id}')">
                         <div class="magazine-feed-img">
                             <img src="${post.image}" alt="post" loading="lazy">
-                            <div class="magazine-feed-img-overlay"></div>
-                            <div class="magazine-feed-author-overlay">
-                                <img class="magazine-feed-av" src="${post.avatar}" alt="av" loading="lazy">
-                                <div class="magazine-feed-author-info">
-                                    <span class="magazine-feed-username">${petObj ? petObj.name : post.username}</span>
-                                    <span class="magazine-feed-location">${locationShort}</span>
-                                </div>
-                            </div>
                             <div class="magazine-feed-species-tag">${speciesLabel}</div>
                         </div>
                         <div class="magazine-feed-body">
+                            <div class="magazine-feed-author-row">
+                                <img class="magazine-feed-av" src="${post.avatar}" alt="av" loading="lazy">
+                                <span class="magazine-feed-username">${petObj ? petObj.name : post.username}</span>
+                                <span class="magazine-feed-location">${locationShort}</span>
+                            </div>
                             <p class="magazine-feed-text">${state.language === 'zh' ? post.content : post.contentEn}</p>
                             <div class="magazine-feed-actions">
                                 <div class="magazine-feed-action ${post.curious ? 'active' : ''}" onclick="event.stopPropagation(); toggleCurious('${post.id}')">
