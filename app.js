@@ -1854,6 +1854,7 @@ function triggerMockMapDiscovery(locationKey) {
 // ==========================================
 
 async function initApp() {
+    await tryAutoLogin();
     await syncState();
     loadUserProfile();
     loadQAQuestions();
@@ -2703,21 +2704,24 @@ function checkLoginAndExecute(callback) {
 
 function showLoginModal(callback = null) {
     state.loginCallback = callback;
-    state.tempLoginAvatar = 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&w=150&q=80';
+    state.authMode = 'register';
     
     const backdrop = document.getElementById('login-modal-backdrop');
     const modal = document.getElementById('login-modal');
-    const preview = document.getElementById('login-avatar-preview');
-    const usernameInput = document.getElementById('login-username-input');
-    const descInput = document.getElementById('login-desc-input');
-    
-    if (preview) preview.src = state.tempLoginAvatar;
-    if (usernameInput) usernameInput.value = '';
-    if (descInput) descInput.value = '';
     
     if (backdrop && modal) {
         backdrop.classList.add('active');
         modal.classList.add('active');
+        switchAuthTab('register');
+        // Clear inputs
+        const emailInput = document.getElementById('auth-email-input');
+        const pwInput = document.getElementById('auth-password-input');
+        const usernameInput = document.getElementById('reg-username-input');
+        const errMsg = document.getElementById('auth-error-msg');
+        if (emailInput) emailInput.value = '';
+        if (pwInput) pwInput.value = '';
+        if (usernameInput) usernameInput.value = '';
+        if (errMsg) errMsg.style.display = 'none';
     }
 }
 
@@ -2731,71 +2735,169 @@ function closeLoginModal() {
     }
 }
 
-function triggerLoginAvatarSelect() {
-    const fileInput = document.getElementById('login-avatar-file');
-    if (fileInput) {
-        fileInput.click();
+function switchAuthTab(mode) {
+    state.authMode = mode;
+    const regTab = document.getElementById('auth-tab-register');
+    const loginTab = document.getElementById('auth-tab-login');
+    const regFields = document.getElementById('auth-register-fields');
+    const submitBtn = document.getElementById('auth-submit-btn');
+    const title = document.getElementById('auth-modal-title');
+    const errMsg = document.getElementById('auth-error-msg');
+
+    if (errMsg) errMsg.style.display = 'none';
+
+    if (mode === 'register') {
+        if (regTab) regTab.classList.add('active');
+        if (loginTab) loginTab.classList.remove('active');
+        if (regFields) regFields.style.display = 'block';
+        if (submitBtn) submitBtn.textContent = '注册并加入';
+        if (title) title.textContent = '加入 Petverse';
+    } else {
+        if (regTab) regTab.classList.remove('active');
+        if (loginTab) loginTab.classList.add('active');
+        if (regFields) regFields.style.display = 'none';
+        if (submitBtn) submitBtn.textContent = '登录';
+        if (title) title.textContent = '欢迎回来';
     }
 }
 
-function handleLoginAvatarUpload(event) {
-    const file = event.target.files[0];
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onload = function(e) {
-        state.tempLoginAvatar = e.target.result; // Base64 data URL
-        const preview = document.getElementById('login-avatar-preview');
-        if (preview) {
-            preview.src = e.target.result;
-        }
-    };
-    reader.readAsDataURL(file);
+function showAuthError(msg) {
+    const errMsg = document.getElementById('auth-error-msg');
+    if (errMsg) {
+        errMsg.textContent = msg;
+        errMsg.style.display = 'block';
+    }
 }
 
-function submitLoginRegister() {
-    const usernameInput = document.getElementById('login-username-input');
-    const descInput = document.getElementById('login-desc-input');
-    
-    if (!usernameInput || !usernameInput.value.trim()) {
-        alert(state.language === 'zh' ? '请输入您的昵称！' : 'Please enter your nickname!');
+async function submitAuth() {
+    const email = document.getElementById('auth-email-input')?.value.trim();
+    const password = document.getElementById('auth-password-input')?.value;
+    const submitBtn = document.getElementById('auth-submit-btn');
+
+    if (!email || !password) {
+        showAuthError('请填写邮箱和密码');
         return;
     }
-    
-    const username = usernameInput.value.trim();
-    const desc = descInput ? descInput.value.trim() : '';
-    
-    // Save to profile
-    state.isLoggedIn = true;
-    localStorage.setItem('petverse_is_logged_in', 'true');
-    
-    state.userProfile.username = username;
-    state.userProfile.avatar = state.tempLoginAvatar;
-    state.userProfile.desc = desc || (state.language === 'zh' ? '这家伙很懒，什么都没留下。' : 'No bio written.');
-    
-    saveUserProfile();
-    closeLoginModal();
-    
-    // Re-render "Me" page and other places if we are currently looking at it
-    if (state.activeTab === 'me') {
-        renderPageMe();
+
+    // Disable button during request
+    if (submitBtn) { submitBtn.disabled = true; submitBtn.textContent = '请稍候...'; }
+
+    try {
+        let url, body;
+        if (state.authMode === 'register') {
+            const username = document.getElementById('reg-username-input')?.value.trim();
+            if (!username) {
+                showAuthError('请填写用户名');
+                if (submitBtn) { submitBtn.disabled = false; submitBtn.textContent = '注册并加入'; }
+                return;
+            }
+            url = '/api/auth/register';
+            body = { username, email, password };
+        } else {
+            url = '/api/auth/login';
+            body = { email, password };
+        }
+
+        const resp = await fetch(url, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(body)
+        });
+
+        const data = await resp.json();
+
+        if (!resp.ok) {
+            showAuthError(data.error || '操作失败');
+            if (submitBtn) {
+                submitBtn.disabled = false;
+                submitBtn.textContent = state.authMode === 'register' ? '注册并加入' : '登录';
+            }
+            return;
+        }
+
+        // Success! Save token and user info
+        localStorage.setItem('petverse_token', data.token);
+        localStorage.setItem('petverse_is_logged_in', 'true');
+        
+        state.isLoggedIn = true;
+        state.userProfile = {
+            username: data.user.username,
+            avatar: data.user.avatar || `https://api.dicebear.com/7.x/adventurer/svg?seed=${data.user.username}`,
+            desc: data.user.bio || '这家伙很懒，什么都没留下。',
+            email: data.user.email,
+            userId: data.user._id
+        };
+        saveUserProfile();
+        closeLoginModal();
+
+        if (state.activeTab === 'me') renderPageMe();
+
+        alert(state.authMode === 'register'
+            ? `🎉 欢迎加入 Petverse，${data.user.username}！`
+            : `👋 欢迎回来，${data.user.username}！`);
+
+        if (state.loginCallback) {
+            const cb = state.loginCallback;
+            state.loginCallback = null;
+            cb();
+        }
+    } catch (err) {
+        console.error('Auth error:', err);
+        showAuthError('网络错误，请稍后重试');
+    } finally {
+        if (submitBtn) {
+            submitBtn.disabled = false;
+            submitBtn.textContent = state.authMode === 'register' ? '注册并加入' : '登录';
+        }
     }
-    
-    alert(state.language === 'zh' ? `欢迎加入 Petverse，${username}！` : `Welcome to Petverse, ${username}!`);
-    
-    // Execute the pending action
-    if (state.loginCallback) {
-        const cb = state.loginCallback;
-        state.loginCallback = null;
-        cb();
+}
+
+// Auto-login on page load if token exists
+async function tryAutoLogin() {
+    const token = localStorage.getItem('petverse_token');
+    if (!token) return;
+
+    try {
+        const resp = await fetch('/api/auth/me', {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+        if (resp.ok) {
+            const user = await resp.json();
+            state.isLoggedIn = true;
+            state.userProfile = {
+                username: user.username,
+                avatar: user.avatar || `https://api.dicebear.com/7.x/adventurer/svg?seed=${user.username}`,
+                desc: user.bio || '这家伙很懒，什么都没留下。',
+                email: user.email,
+                userId: user._id
+            };
+            saveUserProfile();
+        } else {
+            // Token expired
+            localStorage.removeItem('petverse_token');
+            localStorage.removeItem('petverse_is_logged_in');
+        }
+    } catch (e) {
+        console.log('Auto-login failed, continuing as guest');
     }
+}
+
+function getAuthHeaders() {
+    const token = localStorage.getItem('petverse_token');
+    if (token) {
+        return { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' };
+    }
+    return { 'Content-Type': 'application/json' };
 }
 
 function performLogOut() {
     if (confirm(state.language === 'zh' ? '确定要退出登录吗？' : 'Are you sure you want to log out?')) {
         state.isLoggedIn = false;
         localStorage.removeItem('petverse_is_logged_in');
+        localStorage.removeItem('petverse_token');
+        state.userProfile = { username: '', avatar: '', desc: '', email: '', userId: '' };
         renderPageMe();
-        alert(state.language === 'zh' ? '已退出当前账号，进入游客浏览模式。' : 'Logged out. Entered guest mode.');
+        alert(state.language === 'zh' ? '已退出登录。' : 'Logged out.');
     }
 }
 

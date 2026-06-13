@@ -108,30 +108,40 @@
                 <div class="timeline-modal-backdrop" id="login-modal-backdrop" onclick="closeLoginModal()"></div>
                 <div class="timeline-modal" id="login-modal">
                     <div class="timeline-modal-header">
-                        <span class="timeline-modal-title" data-t="loginTitle">加入 Petverse 社区</span>
+                        <span class="timeline-modal-title" id="auth-modal-title">加入 Petverse</span>
                         <span style="cursor: pointer; font-size: 12px; font-weight: bold; color: var(--text-secondary);" onclick="closeLoginModal()">✕</span>
                     </div>
                     <div class="timeline-modal-body">
-                        <div style="text-align: center; margin-bottom: 6px;">
-                            <div style="position: relative; display: inline-block; cursor: pointer; margin: 0 auto;" onclick="triggerLoginAvatarSelect()">
-                                <img id="login-avatar-preview" src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&w=150&q=80" style="width: 50px; height: 50px; border-radius: 50%; border: 1.5px solid var(--color-brand); object-fit: cover; display: block;">
-                                <div style="position: absolute; bottom: 0; right: 0; background: var(--color-brand); color: #fff; border-radius: 50%; width: 16px; height: 16px; display: flex; align-items: center; justify-content: center; font-size: 8px; border: 1px solid var(--bg-secondary);">📷</div>
+                        <!-- Auth mode tabs -->
+                        <div class="auth-tabs">
+                            <div class="auth-tab active" id="auth-tab-register" onclick="switchAuthTab('register')">注册</div>
+                            <div class="auth-tab" id="auth-tab-login" onclick="switchAuthTab('login')">登录</div>
+                        </div>
+
+                        <!-- Register fields (shown by default) -->
+                        <div id="auth-register-fields">
+                            <div class="calc-input-group">
+                                <span class="calc-input-label">用户名</span>
+                                <input type="text" id="reg-username-input" placeholder="2-20个字符" maxlength="20">
                             </div>
                         </div>
-                        <input type="file" id="login-avatar-file" accept="image/*" style="display:none;" onchange="handleLoginAvatarUpload(event)">
-                        
+
+                        <!-- Shared fields -->
                         <div class="calc-input-group">
-                            <span class="calc-input-label" data-t="loginUsernameLabel">个性昵称</span>
-                            <input type="text" id="login-username-input" placeholder="例如: 守宫玩家">
+                            <span class="calc-input-label">邮箱</span>
+                            <input type="email" id="auth-email-input" placeholder="your@email.com">
                         </div>
                         <div class="calc-input-group">
-                            <span class="calc-input-label" data-t="loginDescLabel">个人简介</span>
-                            <input type="text" id="login-desc-input" placeholder="介绍一下你自己...">
+                            <span class="calc-input-label">密码</span>
+                            <input type="password" id="auth-password-input" placeholder="至少6位" minlength="6">
                         </div>
+
+                        <!-- Error message -->
+                        <div id="auth-error-msg" style="display:none; color:#ff6b6b; font-size:10px; text-align:center; margin-top:6px; padding:4px 8px; background:rgba(255,107,107,0.1); border-radius:6px;"></div>
                     </div>
                     <div class="timeline-modal-footer">
-                        <button class="join-btn" onclick="closeLoginModal()" style="background:transparent; border:1px solid var(--border-color); color:var(--text-secondary); padding: 5px 12px; border-radius:12px; font-size:10px;" data-t="cancelBtn">取消</button>
-                        <button class="join-btn" onclick="submitLoginRegister()" style="padding: 5px 12px; border-radius:12px; font-size:10px;" data-t="loginSubmitBtn">立即加入</button>
+                        <button class="join-btn" onclick="closeLoginModal()" style="background:transparent; border:1px solid var(--border-color); color:var(--text-secondary); padding: 5px 12px; border-radius:12px; font-size:10px;">取消</button>
+                        <button class="join-btn" id="auth-submit-btn" onclick="submitAuth()" style="padding: 5px 12px; border-radius:12px; font-size:10px;">注册并加入</button>
                     </div>
                 </div>
 
