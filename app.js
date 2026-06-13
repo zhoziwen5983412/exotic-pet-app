@@ -572,38 +572,44 @@ function renderPageHome() {
             </div>
         `;
 
-        // Divide posts into two columns (odd/even index) to create waterfall
-        let leftColPosts = [];
-        let rightColPosts = [];
-        displayPosts.forEach((post, i) => {
-            if (i % 2 === 0) leftColPosts.push(post);
-            else rightColPosts.push(post);
-        });
-
-        const renderColumn = (postsList) => {
-            if (postsList.length === 0) return `<div style="text-align:center; padding: 20px; color:var(--text-secondary); font-size:10px; width:100%;">暂无内容 / No posts</div>`;
-            return postsList.map((post, idx) => {
+        // Single-column magazine feed (matching promo design)
+        const renderFeed = () => {
+            if (displayPosts.length === 0) return `<div style="text-align:center; padding: 40px 20px; color:var(--text-secondary); font-size:12px;">暂无内容</div>`;
+            return displayPosts.map((post) => {
                 const petObj = post.petId ? state.pets.find(p => p.id === post.petId) : null;
-                // Varying image heights for true masonry waterfall look (120px to 170px)
-                const imgHeight = idx % 2 === 0 ? '135px' : '175px';
+                const speciesLabel = petObj ? (state.language === 'zh' ? petObj.species.split(' (')[0] : petObj.species.split('(')[1]?.replace(')', '') || petObj.species) : (state.language === 'zh' ? post.tag : post.tagEn);
+                const locationShort = state.language === 'zh' ? post.location.split(' (')[0] : post.location.split('(')[1]?.replace(')', '') || post.location;
 
                 return `
-                    <div class="post-waterfall-card" onclick="showPostDetail('${post.id}')">
-                        <div class="waterfall-img-wrap" style="height: ${imgHeight}">
-                            <img src="${post.image}" alt="post img" loading="lazy">
-                        </div>
-                        <div class="waterfall-body">
-                            <span class="waterfall-meta-loc">${state.language === 'zh' ? post.location.split(' ')[0] : post.location.split(',')[0]}</span>
-                            <p class="waterfall-title">${state.language === 'zh' ? post.content : post.contentEn}</p>
-                            <div class="waterfall-footer">
-                                <div class="waterfall-author" onclick="event.stopPropagation(); ${post.petId ? `showPetProfile('${post.petId}')` : ''}">
-                                    <img class="waterfall-author-av" src="${post.avatar}" alt="av" loading="lazy">
-                                    <span class="waterfall-author-name">${petObj ? petObj.name : post.username}</span>
+                    <div class="magazine-feed-card" onclick="showPostDetail('${post.id}')">
+                        <div class="magazine-feed-img">
+                            <img src="${post.image}" alt="post" loading="lazy">
+                            <div class="magazine-feed-img-overlay"></div>
+                            <div class="magazine-feed-author-overlay">
+                                <img class="magazine-feed-av" src="${post.avatar}" alt="av" loading="lazy">
+                                <div class="magazine-feed-author-info">
+                                    <span class="magazine-feed-username">${petObj ? petObj.name : post.username}</span>
+                                    <span class="magazine-feed-location">${locationShort}</span>
                                 </div>
-                                <div class="waterfall-like ${post.curious ? 'active' : ''}" onclick="event.stopPropagation(); toggleCurious('${post.id}')">
+                            </div>
+                            <div class="magazine-feed-species-tag">${speciesLabel}</div>
+                        </div>
+                        <div class="magazine-feed-body">
+                            <p class="magazine-feed-text">${state.language === 'zh' ? post.content : post.contentEn}</p>
+                            <div class="magazine-feed-actions">
+                                <div class="magazine-feed-action ${post.curious ? 'active' : ''}" onclick="event.stopPropagation(); toggleCurious('${post.id}')">
                                     <span>${post.curious ? '❤️' : '🤍'}</span>
                                     <span>${formatNumber(post.curiousCount)}</span>
                                 </div>
+                                <div class="magazine-feed-action">
+                                    <span>💬</span>
+                                    <span>${formatNumber(post.commentCount)}</span>
+                                </div>
+                                <div class="magazine-feed-action">
+                                    <span>🔖</span>
+                                    <span>${formatNumber(post.saveCount)}</span>
+                                </div>
+                                <span class="magazine-feed-time">${state.language === 'zh' ? post.time : post.timeEn}</span>
                             </div>
                         </div>
                     </div>
@@ -636,10 +642,8 @@ function renderPageHome() {
 
             ${filterNoticeHtml}
 
-            <!-- Waterfall double rows -->
-            <div class="waterfall-container">
-                <div class="waterfall-column">${renderColumn(leftColPosts)}</div>
-                <div class="waterfall-column">${renderColumn(rightColPosts)}</div>
+            <div class="magazine-feed-container">
+                ${renderFeed()}
             </div>
         `;
 
